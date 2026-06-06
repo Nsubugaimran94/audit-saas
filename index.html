@@ -170,6 +170,7 @@ message.style.color = 'green'
 message.textContent = `Audit complete. ${auditResults.total_flags} issue(s) found.`
 
 displayResults(auditResults, parsedData)
+await saveAuditResults(supabaseClient, auditResults, parsedData, file.name)
 }
                 }
             } catch (err) {

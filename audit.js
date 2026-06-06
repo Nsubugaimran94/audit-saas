@@ -124,3 +124,26 @@ function auditStatement(invoices) {
         flags: flags
     }
 }
+
+async function saveAuditResults(supabase, auditResults, parsedData, fileName) {
+    const { data, error } = await supabase
+        .from('audit_results')
+        .insert([
+            {
+                client: parsedData.client,
+                supplier: parsedData.supplier,
+                file_name: fileName,
+                rows_checked: auditResults.total_rows_checked,
+                total_flags: auditResults.total_flags,
+                flags: auditResults.flags,
+                created_at: new Date().toISOString()
+            }
+        ])
+
+    if (error) {
+        console.error('Error saving audit results:', error)
+    } else {
+        console.log('Audit results saved to Supabase')
+    }
+}
+                
