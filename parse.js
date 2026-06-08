@@ -1,42 +1,50 @@
 async function parseDocument(file) {
-    // This will be replaced with real Claude API call later
-    // For now we return mock extracted data to keep building
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
 
-    const mockResponse = {
-        invoices: [
-    {
-        "DATE": "2023-01-15",
-        "PARTICULARS": "6X20FT STC OF IMPORTS",
-        "INV.NO.": "WH-1001",
-        "AMOUNT": 5700,
-        "PAYMENTS": 0
-    },
-    {
-        "DATE": "2023-02-20",
-        "PARTICULARS": "3X20FT STC OF COFFEE TO MOMBASA PORT",
-        "INV.NO.": "WH-1002",
-        "AMOUNT": 2850,
-        "PAYMENTS": 0
-    },
-    {
-        "DATE": "44862",
-        "PARTICULARS": "5X20FT STC OF IMPORTS",
-        "INV.NO.": "WH-1003",
-        "AMOUNT": 5000,
-        "PAYMENTS": 0
-    },
-    {
-        "DATE": "2023-04-01",
-        "PARTICULARS": "Payment received",
-        "INV.NO.": "WH-3013",
-        "AMOUNT": 0,
-        "PAYMENTS": 2000
-    }
-],
-        supplier: "White Horse Carriers Ltd",
-        client: "NAK Shipping & Logistics Ltd",
-        statement_period: "2023"
-    }
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result)
+                const workbook = XLSX.read(data, { type: 'array' })
 
-    return mockResponse
+                // Get first sheet
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
+
+                // Convert to JSON
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' })
+
+                console.log('Raw extracted rows:', rows)
+
+                // Try to detect client and supplier from first few rows
+                let client = 'Unknown Client'
+                let supplier = 'Unknown Supplier'
+
+                // Look for client/supplier info in raw sheet data
+                const rawRows = XLSX.utils.sheet_to_json(firstSheet, { 
+                    header: 1, 
+                    defval: '' 
+                })
+
+                rawRows.slice(0, 10).forEach(row => {
+                    const rowText = row.join(' ').toUpperCase()
+                    if (rowText.includes('NAK')) client = 'NAK Shipping & Logistics Ltd'
+                    if (rowText.includes('WHITE HORSE')) supplier = 'White Horse Carriers Ltd'
+                })
+
+                resolve({
+                    invoices: rows,
+                    client: client,
+                    supplier: supplier,
+                    statement_period: new Date().getFullYear().toString(),
+                    raw_rows: rawRows
+                })
+
+            } catch(err) {
+                reject(err)
+            }
+        }
+
+        reader.onerror = reject
+        reader.readAsArrayBuffer(file)
+    })
 }
