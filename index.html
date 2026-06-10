@@ -9,589 +9,29 @@
     <title>AuditLog — Logistics Statement Auditing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --navy: #0B1F3A;
-            --navy-mid: #132B4E;
-            --navy-light: #1E3F6E;
-            --accent: #2563EB;
-            --accent-light: #3B82F6;
-            --gold: #F59E0B;
-            --surface: #F8FAFC;
-            --surface-2: #EFF4FB;
-            --border: rgba(11,31,58,0.1);
-            --border-strong: rgba(11,31,58,0.2);
-            --text-primary: #0B1F3A;
-            --text-secondary: #4A6080;
-            --text-muted: #8FA3BB;
-            --success: #059669;
-            --danger: #DC2626;
-            --warning: #D97706;
-            --critical: #991B1B;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--surface);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        /* NAV */
-        nav {
-            background: var(--navy);
-            padding: 0 2rem;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-mark svg {
-            width: 18px;
-            height: 18px;
-            fill: white;
-        }
-
-        .logo-text {
-            font-size: 16px;
-            font-weight: 600;
-            color: white;
-            letter-spacing: -0.3px;
-        }
-
-        .logo-text span {
-            color: var(--accent-light);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .nav-link {
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 400;
-            padding: 6px 14px;
-            border-radius: 6px;
-            transition: all 0.15s;
-        }
-
-        .nav-link:hover { color: white; background: rgba(255,255,255,0.08); }
-        .nav-link.active { color: white; background: rgba(37,99,235,0.3); }
-
-        /* HERO */
-        .hero {
-            background: var(--navy);
-            padding: 4rem 2rem 5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 300px;
-            background: radial-gradient(ellipse, rgba(37,99,235,0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(37,99,235,0.15);
-            border: 1px solid rgba(37,99,235,0.3);
-            color: #93C5FD;
-            font-size: 12px;
-            font-weight: 500;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .hero-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: #3B82F6;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .hero h1 {
-            font-size: 2.4rem;
-            font-weight: 600;
-            color: white;
-            letter-spacing: -1px;
-            line-height: 1.15;
-            margin-bottom: 1rem;
-        }
-
-        .hero h1 span { color: #60A5FA; }
-
-        .hero p {
-            color: rgba(255,255,255,0.5);
-            font-size: 15px;
-            font-weight: 300;
-            max-width: 480px;
-            margin: 0 auto;
-            line-height: 1.7;
-        }
-
-        /* MAIN */
-        main {
-            max-width: 860px;
-            margin: -2rem auto 0;
-            padding: 0 1.5rem 4rem;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* UPLOAD CARD */
-        .upload-card {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 24px rgba(11,31,58,0.08);
-            overflow: hidden;
-        }
-
-        .upload-card-header {
-            padding: 1.5rem 1.75rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .upload-card-header .icon {
-            width: 36px;
-            height: 36px;
-            background: var(--surface-2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-card-header h2 {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .upload-card-header p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-
-        .upload-card-body { padding: 1.75rem; }
-
-        /* DROP ZONE */
-        .drop-zone {
-            border: 2px dashed var(--border-strong);
-            border-radius: 12px;
-            padding: 2.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--surface);
-            position: relative;
-        }
-
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--accent);
-            background: rgba(37,99,235,0.03);
-        }
-
-        .drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-
-        .drop-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--surface-2);
-            border-radius: 12px;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .drop-icon svg { width: 24px; height: 24px; stroke: var(--accent); fill: none; }
-
-        .drop-zone h3 {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .drop-zone p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .file-types {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-top: 12px;
-        }
-
-        .file-type-badge {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'DM Mono', monospace;
-        }
-
-        .file-selected {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            background: rgba(37,99,235,0.05);
-            border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-top: 1rem;
-        }
-
-        .file-selected.show { display: flex; }
-
-        .file-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(37,99,235,0.1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .file-icon svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; }
-
-        .file-name {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .file-size {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* AUDIT BUTTON */
-        .audit-btn {
-            width: 100%;
-            margin-top: 1.25rem;
-            background: var(--navy);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 14px;
-            font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: -0.2px;
-        }
-
-        .audit-btn:hover { background: var(--navy-light); }
-        .audit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .audit-btn svg { width: 16px; height: 16px; stroke: white; fill: none; }
-
-        /* PROGRESS */
-        .progress-bar {
-            display: none;
-            margin-top: 1rem;
-        }
-
-        .progress-bar.show { display: block; }
-
-        .progress-track {
-            height: 3px;
-            background: var(--surface-2);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .progress-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .spinner {
-            width: 12px;
-            height: 12px;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* RESULTS */
-        #results { margin-top: 1.5rem; }
-
-        .results-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .results-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .results-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* SUMMARY STATS */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 1.25rem;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 16px;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-family: 'DM Mono', monospace;
-        }
-
-        .stat-value.danger { color: var(--danger); }
-        .stat-value.success { color: var(--success); }
-        .stat-value.warning { color: var(--warning); }
-
-        /* CLEAN STATE */
-        .clean-state {
-            background: rgba(5,150,105,0.05);
-            border: 1px solid rgba(5,150,105,0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .clean-state .check-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(5,150,105,0.1);
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .clean-state .check-icon svg { width: 22px; height: 22px; stroke: var(--success); fill: none; }
-        .clean-state h3 { font-size: 14px; font-weight: 500; color: var(--success); margin-bottom: 4px; }
-        .clean-state p { font-size: 12px; color: var(--text-muted); }
-
-        /* FLAG CARDS */
-        .flags-list { display: flex; flex-direction: column; gap: 8px; }
-
-        .flag-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 16px;
-            border-left: 3px solid var(--border-strong);
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .flag-card.HIGH { border-left-color: var(--warning); }
-        .flag-card.CRITICAL { border-left-color: var(--danger); }
-
-        .flag-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-top: 4px;
-            flex-shrink: 0;
-        }
-
-        .flag-card.HIGH .flag-dot { background: var(--warning); }
-        .flag-card.CRITICAL .flag-dot { background: var(--danger); }
-
-        .flag-content { flex: 1; }
-
-        .flag-top {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-
-        .flag-type {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .flag-card.HIGH .flag-type { color: var(--warning); }
-        .flag-card.CRITICAL .flag-type { color: var(--danger); }
-
-        .flag-severity {
-            font-size: 10px;
-            font-weight: 500;
-            padding: 1px 7px;
-            border-radius: 4px;
-        }
-
-        .flag-card.HIGH .flag-severity { background: rgba(217,119,6,0.1); color: var(--warning); }
-        .flag-card.CRITICAL .flag-severity { background: rgba(220,38,38,0.1); color: var(--danger); }
-
-        .flag-detail {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 4px;
-        }
-
-        .flag-meta {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: 'DM Mono', monospace;
-        }
-
-        /* SUMMARY INFO */
-        .audit-summary {
-            background: var(--navy);
-            border-radius: 10px;
-            padding: 16px 20px;
-            margin-bottom: 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .audit-summary-left { }
-
-        .audit-summary-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .audit-summary-value {
-            font-size: 13px;
-            font-weight: 500;
-            color: white;
-        }
-
-        .audit-summary-right {
-            text-align: right;
-        }
-
-        /* MESSAGE */
-        #message {
-            font-size: 13px;
-            margin-top: 8px;
-            min-height: 18px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1F3A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AuditLog">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
 <body>
+
+<div class="install-banner" id="installBanner">
+    <div class="install-banner-left">
+        <div class="install-icon">📲</div>
+        <div>
+            <div class="install-title">Install AuditLog</div>
+            <div class="install-sub">Add to your home screen for quick access</div>
+        </div>
+    </div>
+    <div class="install-banner-right">
+        <button class="install-btn" onclick="installApp()">Install</button>
+        <button class="dismiss-btn" onclick="dismissBanner()">✕</button>
+    </div>
+</div>
 
 <nav>
     <a href="index.html" class="logo">
@@ -626,25 +66,25 @@
         <div class="upload-card-body">
             <div class="drop-zone" id="dropZone">
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf">
-                <div class="drop-icon">
-                    <svg viewBox="0 0 24 24" stroke-width="1.5"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                
+                <div class="drop-default">
+                    <div class="drop-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                    </div>
+                    <h3>Drop your file here or click to browse</h3>
+                    <p>Maximum file size 25MB</p>
+                    <div class="file-types">
+                        <span class="file-type-badge">.xlsx</span>
+                        <span class="file-type-badge">.xls</span>
+                        <span class="file-type-badge">.pdf</span>
+                    </div>
                 </div>
-                <h3>Drop your file here or click to browse</h3>
-                <p>Maximum file size 25MB</p>
-                <div class="file-types">
-                    <span class="file-type-badge">.xlsx</span>
-                    <span class="file-type-badge">.xls</span>
-                    <span class="file-type-badge">.pdf</span>
-                </div>
-            </div>
 
-            <div class="file-selected" id="fileSelected">
-                <div class="file-icon">
-                    <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-                </div>
-                <div>
-                    <div class="file-name" id="fileName">—</div>
-                    <div class="file-size" id="fileSize">—</div>
+                <div class="drop-file-preview">
+                    <div class="file-emoji" id="fileEmoji">📄</div>
+                    <div class="file-preview-name" id="filePreviewName">—</div>
+                    <div class="file-preview-size" id="filePreviewSize">—</div>
+                    <button class="remove-file-btn" onclick="removeFile(event)">Remove</button>
                 </div>
             </div>
 
@@ -706,9 +146,29 @@
     })
 
     function showFileSelected(file) {
+        const dropZone = document.getElementById('dropZone')
+        dropZone.classList.add('has-file')
+
+        const ext = file.name.split('.').pop().toLowerCase()
+        const emoji = ext === 'pdf' ? '📕' : '📗'
+
+        document.getElementById('fileEmoji').textContent = emoji
+        document.getElementById('filePreviewName').textContent = file.name
+        document.getElementById('filePreviewSize').textContent = (file.size / 1024).toFixed(1) + ' KB'
+
         document.getElementById('fileSelected').classList.add('show')
         document.getElementById('fileName').textContent = file.name
         document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB'
+    }
+
+    function removeFile(e) {
+        e.stopPropagation()
+        const dropZone = document.getElementById('dropZone')
+        dropZone.classList.remove('has-file')
+        document.getElementById('fileInput').value = ''
+        document.getElementById('fileSelected').classList.remove('show')
+        document.getElementById('results').innerHTML = ''
+        document.getElementById('message').textContent = ''
     }
 
     function setProgress(pct, label) {
@@ -828,6 +288,50 @@
 
         html += `</div>`
         results.innerHTML = html
+    }
+</script>
+
+<script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW failed:', err))
+        })
+    }
+
+    // Install prompt
+    let deferredPrompt = null
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault()
+        deferredPrompt = e
+        showInstallBanner()
+    })
+
+    function showInstallBanner() {
+        const banner = document.getElementById('installBanner')
+        if (banner) {
+            banner.classList.add('show')
+        }
+    }
+
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt()
+            deferredPrompt.userChoice.then(choice => {
+                if (choice.outcome === 'accepted') {
+                    console.log('App installed')
+                }
+                deferredPrompt = null
+                document.getElementById('installBanner').classList.remove('show')
+            })
+        }
+    }
+
+    function dismissBanner() {
+        document.getElementById('installBanner').classList.remove('show')
     }
 </script>
 </body>
