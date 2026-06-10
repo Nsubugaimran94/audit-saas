@@ -190,7 +190,7 @@
 
         btn.disabled = true
         message.textContent = ''
-        setProgress(20, 'Uploading file...')
+        setProgress(20, '🔍 Auditing...')
 
         const fileName = `${Date.now()}_${file.name}`
         const { data, error } = await supabase.storage.from('audit-uploads').upload(fileName, file)
@@ -202,10 +202,10 @@
             return
         }
 
-        setProgress(50, 'Parsing document...')
+        setProgress(50, '🔍 Auditing...')
         const parsedData = await parseDocument(file)
 
-        setProgress(80, 'Running audit checks...')
+        setProgress(80, '🔍 Auditing...')
         const auditResults = auditStatement(parsedData.invoices)
 
         setProgress(100, 'Complete')
