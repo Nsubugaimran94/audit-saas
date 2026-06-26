@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditLog — Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1F3A">
+</head>
+<body>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div class="logo-mark">
+                <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            </div>
+            <span class="logo-text">Audit<span>Log</span></span>
+        </div>
+
+        <h1>Create your account</h1>
+        <p class="auth-sub">Start auditing your logistics statements</p>
+
+        <div class="auth-field">
+            <label>Company Name</label>
+            <input type="text" id="companyName" placeholder="NAK Shipping & Logistics Ltd">
+        </div>
+
+        <div class="auth-field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="you@company.com">
+        </div>
+
+        <div class="auth-field">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="At least 6 characters">
+        </div>
+
+        <button class="auth-btn" onclick="registerUser()" id="registerBtn">Create Account</button>
+
+        <div id="authMessage"></div>
+
+        <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const supabase = window.supabase.createClient(
+        'https://wqrimnvcfduqsdnpcitk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
+    )
+
+    async function registerUser() {
+        const companyName = document.getElementById('companyName').value.trim()
+        const email = document.getElementById('email').value.trim()
+        const password = document.getElementById('password').value
+        const message = document.getElementById('authMessage')
+        const btn = document.getElementById('registerBtn')
+
+        if (!companyName || !email || !password) {
+            message.style.color = 'var(--danger)'
+            message.textContent = 'Please fill in all fields.'
+            return
+        }
+
+        if (password.length < 6) {
+            message.style.color = 'var(--danger)'
+            message.textContent = 'Password must be at least 6 characters.'
+            return
+        }
+
+        btn.disabled = true
+        btn.textContent = 'Creating account...'
+
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    company_name: companyName
+                }
+            }
+        })
+
+        if (error) {
+            message.style.color = 'var(--danger)'
+            message.textContent = error.message
+            btn.disabled = false
+            btn.textContent = 'Create Account'
+            return
+        }
+
+        message.style.color = 'var(--success)'
+        message.textContent = 'Account created! Redirecting...'
+
+        setTimeout(() => {
+            window.location.href = 'index.html'
+        }, 1500)
+    }
+</script>
+</body>
+</html>
