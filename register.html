@@ -93,6 +93,17 @@
             btn.textContent = 'Create Account'
             return
         }
+        // Create profile row for this user
+if (data.user) {
+    await supabase.from('profiles').insert([
+        {
+            id: data.user.id,
+            email: email,
+            company_name: companyName,
+            free_trial_used: false
+        }
+    ])
+}
 
         message.style.color = 'var(--success)'
         message.textContent = 'Account created! Redirecting...'
