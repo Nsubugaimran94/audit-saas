@@ -267,6 +267,10 @@
 
         displayResults(auditResults, parsedData)
         await saveAuditResults(supabase, auditResults, parsedData, file.name)
+        // Mark free trial as used after their first audit
+if (access.reason === 'free_trial') {
+    await supabase.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
+}
         btn.disabled = false
     }
 
