@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditLog — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1F3A">
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+    <div class="auth-shell">
+        <div class="auth-hero">
+            <div class="auth-logo">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <span class="logo-text">Audit<span>Log</span></span>
+            </div>
+
+            <div class="auth-hero-badge">Secure audit workspace</div>
+            <h1>Sign in and continue reviewing your logistics statements.</h1>
+            <p>Upload documents, review flagged issues, and keep your audit workflow moving from one clean dashboard.</p>
+
+            <div class="auth-hero-list">
+                <div class="auth-hero-item">Instant issue tracking</div>
+                <div class="auth-hero-item">History of audit runs</div>
+                <div class="auth-hero-item">Secure account access</div>
+            </div>
+        </div>
+
+        <div class="auth-panel">
+            <div class="auth-card">
+                <h2>Welcome back</h2>
+                <p class="auth-sub">Sign in to continue auditing your statements</p>
+
+                <form onsubmit="event.preventDefault(); loginUser();">
+                    <div class="auth-field">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="you@company.com" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Your password" required>
+                    </div>
+
+                    <button class="auth-btn" type="submit" id="loginBtn">Sign in</button>
+                </form>
+
+                <div id="authMessage"></div>
+
+                <p class="auth-switch">Need an account? <a href="register.html">Create one</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const supabase = window.supabase.createClient(
+        'https://wqrimnvcfduqsdnpcitk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
+    )
+
+    async function loginUser() {
+        const email = document.getElementById('email').value.trim()
+        const password = document.getElementById('password').value
+        const message = document.getElementById('authMessage')
+        const btn = document.getElementById('loginBtn')
+
+        if (!email || !password) {
+            message.style.color = 'var(--danger)'
+            message.textContent = 'Please enter your email and password.'
+            return
+        }
+
+        btn.disabled = true
+        btn.textContent = 'Signing in...'
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        })
+
+        if (error) {
+            message.style.color = 'var(--danger)'
+            message.textContent = error.message
+            btn.disabled = false
+            btn.textContent = 'Sign in'
+            return
+        }
+
+        message.style.color = 'var(--success)'
+        message.textContent = 'Signed in successfully. Redirecting...'
+
+        setTimeout(() => {
+            window.location.href = 'index.html'
+        }, 1000)
+    }
+</script>
+</body>
+</html>

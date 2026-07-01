@@ -178,57 +178,6 @@
     }
 
     async function uploadFile() {
-    const file = fileInput.files[0]
-    const message = document.getElementById('message')
-    const btn = document.getElementById('auditBtn')
-
-    if (!file) {
-        message.style.color = 'var(--danger)'
-        message.textContent = 'Please select a file first.'
-        return
-    }
-
-    // Check user access before proceeding
-    const access = await checkUserAccess()
-
-    if (!access.allowed) {
-        if (access.reason === 'not_logged_in') {
-            message.style.color = 'var(--danger)'
-            message.textContent = 'Please log in to run an audit.'
-            setTimeout(() => window.location.href = 'login.html', 1500)
-        } else if (access.reason === 'payment_required') {
-    message.style.color = 'var(--warning)'
-    message.textContent = 'Free trial used. Redirecting to payment...'
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const paymentResponse = await fetch('/api/pesapal-submit-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: 55000,
-            description: 'AuditLog - Statement Audit',
-            email: user.email,
-            phone: '',
-            firstName: '',
-            lastName: ''
-        })
-    })
-
-    const paymentData = await paymentResponse.json()
-
-    if (paymentData.redirect_url) {
-        window.location.href = paymentData.redirect_url
-    } else {
-        message.style.color = 'var(--danger)'
-        message.textContent = 'Could not start payment. Try again.'
-    }
-}
-        return
-    }
-
-    // ... rest of your existing upload code continues here 
-    async function uploadFile() {
         const file = fileInput.files[0]
         const message = document.getElementById('message')
         const btn = document.getElementById('auditBtn')
@@ -236,6 +185,46 @@
         if (!file) {
             message.style.color = 'var(--danger)'
             message.textContent = 'Please select a file first.'
+            return
+        }
+
+        const access = await checkUserAccess()
+
+        if (!access.allowed) {
+            if (access.reason === 'not_logged_in') {
+                message.style.color = 'var(--danger)'
+                message.textContent = 'Please log in to run an audit.'
+                setTimeout(() => window.location.href = 'login.html', 1500)
+            } else if (access.reason === 'payment_required') {
+                message.style.color = 'var(--warning)'
+                message.textContent = 'Free trial used. Redirecting to payment...'
+
+                const { data: { user } } = await supabase.auth.getUser()
+                const paymentResponse = await fetch('/api/pesapal-submit-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: 55000,
+                        description: 'AuditLog - Statement Audit',
+                        email: user.email,
+                        phone: '',
+                        firstName: '',
+                        lastName: ''
+                    })
+                })
+
+                const paymentData = await paymentResponse.json()
+
+                if (paymentData.redirect_url) {
+                    window.location.href = paymentData.redirect_url
+                } else {
+                    message.style.color = 'var(--danger)'
+                    message.textContent = 'Could not start payment. Try again.'
+                }
+            } else {
+                message.style.color = 'var(--danger)'
+                message.textContent = 'Your account setup is incomplete. Please sign in again.'
+            }
             return
         }
 
@@ -267,10 +256,11 @@
 
         displayResults(auditResults, parsedData)
         await saveAuditResults(supabase, auditResults, parsedData, file.name)
-        // Mark free trial as used after their first audit
-if (access.reason === 'free_trial') {
-    await supabase.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
-}
+
+        if (access.reason === 'free_trial') {
+            await supabase.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
+        }
+
         btn.disabled = false
     }
 
