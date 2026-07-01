@@ -120,6 +120,15 @@
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
     )
 
+    // Auth guard - redirect to login if not logged in
+    async function checkAuth() {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            window.location.href = 'login.html'
+        }
+    }
+    checkAuth()
+
     const fileInput = document.getElementById('fileInput')
     const dropZone = document.getElementById('dropZone')
 
