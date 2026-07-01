@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (registerButton) {
         registerButton.addEventListener('click', registerUser);
     }
+
+    const loginButton = document.getElementById('loginBtn');
+    if (loginButton) {
+        loginButton.addEventListener('click', loginUser);
+    }
 });
 
 async function registerUser() {
@@ -71,4 +76,42 @@ async function registerUser() {
     setTimeout(() => {
         window.location.href = 'index.html';
     }, 1200);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginButton = document.getElementById('loginBtn')
+    if (loginButton) {
+        loginButton.addEventListener('click', loginUser)
+    }
+})
+
+async function loginUser() {
+    const email = document.getElementById('email').value.trim()
+    const password = document.getElementById('password').value
+    const message = document.getElementById('authMessage')
+    const btn = document.getElementById('loginBtn')
+
+    if (!email || !password) {
+        message.style.color = '#DC2626'
+        message.textContent = 'Please enter your email and password.'
+        return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Signing in...'
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+        message.style.color = '#DC2626'
+        message.textContent = error.message
+        btn.disabled = false
+        btn.textContent = 'Sign In →'
+        return
+    }
+
+    message.style.color = '#059669'
+    message.textContent = 'Signed in! Redirecting...'
+
+    setTimeout(() => { window.location.href = 'index.html' }, 1000)
 }
