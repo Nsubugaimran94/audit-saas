@@ -121,13 +121,11 @@
     )
 
     // Auth guard - redirect to login if not logged in
-    async function checkAuth() {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-            window.location.href = 'login.html'
-        }
+    supabase.auth.onAuthStateChange((event, session) => {
+    if (!session) {
+        window.location.href = 'login.html'
     }
-    checkAuth()
+})
 
     const fileInput = document.getElementById('fileInput')
     const dropZone = document.getElementById('dropZone')
