@@ -115,7 +115,7 @@
 <script src="parse.js"></script>
 <script src="audit.js"></script>
 <script>
-    const supabase = window.supabase.createClient(
+    const supabaseClient = window.supabase.createClient(
         'https://wqrimnvcfduqsdnpcitk.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
     )
@@ -125,14 +125,14 @@
     }
 
     ;(async () => {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session } } = await supabaseClient.auth.getSession()
         if (!session) {
             redirectToLogin()
             return
         }
     })()
 
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
         if (!session) {
             redirectToLogin()
         }
@@ -217,7 +217,7 @@
                 message.style.color = 'var(--warning)'
                 message.textContent = 'Free trial used. Redirecting to payment...'
 
-                const { data: { user } } = await supabase.auth.getUser()
+                const { data: { user } } = await supabaseClient.auth.getUser()
                 const paymentResponse = await fetch('/api/pesapal-submit-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -251,7 +251,7 @@
         setProgress(20, '🔍 Auditing...')
 
         const fileName = `${Date.now()}_${file.name}`
-        const { data, error } = await supabase.storage.from('audit-uploads').upload(fileName, file)
+        const { data, error } = await supabaseClient.storage.from('audit-uploads').upload(fileName, file)
 
         if (error) {
             message.style.color = 'var(--danger)'
@@ -273,10 +273,10 @@
         message.textContent = `Audit complete — ${auditResults.total_flags} issue(s) found.`
 
         displayResults(auditResults, parsedData)
-        await saveAuditResults(supabase, auditResults, parsedData, file.name)
+        await saveAuditResults(supabaseClient, auditResults, parsedData, file.name)
 
         if (access.reason === 'free_trial') {
-            await supabase.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
+            await supabaseClient.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
         }
 
         btn.disabled = false
@@ -421,13 +421,13 @@ window.addEventListener('load', () => {
     }
 })
 async function checkUserAccess() {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await supabaseClient.auth.getUser()
 
     if (!user) {
         return { allowed: false, reason: 'not_logged_in' }
     }
 
-    const { data: profile, error } = await supabase
+    const { data: profile, error } = await supabaseClient
         .from('profiles')
         .select('free_trial_used')
         .eq('id', user.id)

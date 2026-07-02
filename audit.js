@@ -125,8 +125,8 @@ function auditStatement(invoices) {
     }
 }
 
-async function saveAuditResults(supabase, auditResults, parsedData, fileName) {
-    const { data, error } = await supabase
+async function saveAuditResults(supabaseClient, auditResults, parsedData, fileName) {
+    const { data, error } = await supabaseClient
         .from('audit_results')
         .insert([
             {
