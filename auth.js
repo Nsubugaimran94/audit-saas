@@ -23,6 +23,28 @@ function initSupabase() {
     console.error('Supabase client not found. Ensure the CDN script is loaded before auth.js');
 }
 
+function getSignupErrorMessage(error) {
+    if (!error || !error.message) {
+        return 'Unable to create account right now. Please try again later.';
+    }
+
+    const normalized = error.message.toLowerCase();
+
+    if (normalized.includes('email rate limit')) {
+        return 'Too many confirmation emails were requested. Please wait a few minutes and try again.';
+    }
+
+    if (normalized.includes('invalid email')) {
+        return 'Please enter a valid email address.';
+    }
+
+    if (normalized.includes('password')) {
+        return 'Please choose a stronger password.';
+    }
+
+    return error.message;
+}
+
 async function registerUser(event) {
     if (event && event.preventDefault) event.preventDefault();
     const companyNameEl = document.getElementById('companyName');
@@ -76,9 +98,11 @@ async function registerUser(event) {
         });
 
         if (error) {
+            const displayMessage = getSignupErrorMessage(error);
+            console.warn('Signup error:', error);
             if (message) {
                 message.style.color = 'var(--danger)';
-                message.textContent = error.message;
+                message.textContent = displayMessage;
             }
             if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
             return;
