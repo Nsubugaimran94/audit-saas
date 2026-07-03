@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditLog — Payment Status</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0B1F3A;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin: 0 auto 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon.success { background: rgba(5,150,105,0.1); }
+        .icon.pending { background: rgba(217,119,6,0.1); }
+        .icon.failed { background: rgba(220,38,38,0.1); }
+        .icon svg { width: 28px; height: 28px; }
+        h1 { font-size: 1.2rem; font-weight: 600; color: #0B1F3A; margin-bottom: 8px; }
+        p { font-size: 13px; color: #8FA3BB; line-height: 1.6; margin-bottom: 1.5rem; }
+        .btn {
+            display: inline-block;
+            background: #0B1F3A;
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .spinner {
+            width: 28px; height: 28px;
+            border: 3px solid #EFF4FB;
+            border-top-color: #2563EB;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card" id="statusCard">
+        <div class="icon"><div class="spinner"></div></div>
+        <h1>Confirming your payment...</h1>
+        <p>Please wait while we verify your transaction with Pesapal.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseClient = window.supabase.createClient(
+            'https://wqrimnvcfduqsdnpcitk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
+        )
+
+        async function checkPayment() {
+            const params = new URLSearchParams(window.location.search)
+            const orderTrackingId = params.get('OrderTrackingId')
+            const card = document.getElementById('statusCard')
+
+            if (!orderTrackingId) {
+                card.innerHTML = `
+                    <div class="icon failed"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+                    <h1>No payment reference found</h1>
+                    <p>We couldn't find a transaction to verify.</p>
+                    <a href="index.html" class="btn">Back to Dashboard</a>
+                `
+                return
+            }
+
+            const response = await fetch('/api/pesapal-verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderTrackingId })
+            })
+
+            const result = await response.json()
+
+            if (result.status === 'COMPLETED') {
+                card.innerHTML = `
+                    <div class="icon success"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></div>
+                    <h1>Payment successful</h1>
+                    <p>Your audit has been unlocked. You can now upload and view results.</p>
+                    <a href="index.html" class="btn">Go to Dashboard</a>
+                `
+            } else if (result.status === 'PENDING') {
+                card.innerHTML = `
+                    <div class="icon pending"><svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+                    <h1>Payment pending</h1>
+                    <p>Your payment is still processing. This can take a minute for mobile money. Refresh to check again.</p>
+                    <a href="javascript:location.reload()" class="btn">Refresh Status</a>
+                `
+            } else {
+                card.innerHTML = `
+                    <div class="icon failed"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+                    <h1>Payment not completed</h1>
+                    <p>Your payment did not go through. No charges were made. Please try again.</p>
+                    <a href="index.html" class="btn">Back to Dashboard</a>
+                `
+            }
+        }
+
+        checkPayment()
+    </script>
+</body>
+</html>
