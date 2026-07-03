@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         ? 'https://pay.pesapal.com/v3' 
         : 'https://cybqa.pesapal.com/pesapalv3'
 
-    const { amount, description, email, phone, firstName, lastName } = req.body
+    const { amount, description, email, phone, firstName, lastName, userId } = req.body
 
     if (!amount || !email) {
         return res.status(400).json({ error: 'Amount and email are required' })
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         }
 
         // Step 2 - submit order request
-        const orderId = `audit-${Date.now()}`
+        const orderId = `audit_${userId}_${Date.now()}`
 
         const orderResponse = await fetch(`${baseUrl}/api/Transactions/SubmitOrderRequest`, {
             method: 'POST',
