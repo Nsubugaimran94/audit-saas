@@ -4,6 +4,11 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabaseClient = null;
 
 function initSupabase() {
+    if (window.supabaseClient) {
+        supabaseClient = window.supabaseClient;
+        return;
+    }
+
     try {
         if (typeof supabase !== 'undefined' && supabase.createClient) {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
