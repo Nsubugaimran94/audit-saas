@@ -437,6 +437,25 @@ async function checkUserAccess() {
         .single()
 
     if (error || !profile) {
+        try {
+            const { error: insertError } = await window.supabaseClient.from('profiles').insert([
+                {
+                    id: user.id,
+                    email: user.email,
+                    company_name: user.user_metadata?.company_name || '',
+                    free_trial_used: false
+                }
+            ])
+
+            if (!insertError) {
+                return { allowed: true, reason: 'free_trial', userId: user.id }
+            }
+
+            console.error('Failed to create missing profile:', insertError)
+        } catch (insertErr) {
+            console.error('Profile creation error:', insertErr)
+        }
+
         return { allowed: false, reason: 'no_profile' }
     }
 
