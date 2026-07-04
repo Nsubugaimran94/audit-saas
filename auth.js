@@ -8,14 +8,16 @@ function initSupabase() {
         if (typeof supabase !== 'undefined' && supabase.createClient) {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabase initialized via global `supabase`.');
-            return;
-        }
-
-        if (window && window.supabase && window.supabase.createClient) {
+        } else if (window && window.supabase && window.supabase.createClient) {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabase initialized via `window.supabase`.');
-            return;
         }
+
+        if (supabaseClient) {
+            window.supabaseClient = supabaseClient;
+        }
+
+        return;
     } catch (err) {
         console.error('Error initializing Supabase client:', err);
     }
@@ -206,4 +208,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Expose for debugging and in-case other code expects globals
     window.registerUser = registerUser;
     window.loginUser = loginUser;
+    window.logoutUser = logoutUser;
 });
+
+async function logoutUser() {
+    try {
+        const client = supabaseClient || window.supabaseClient;
+        if (client && client.auth && client.auth.signOut) {
+            await client.auth.signOut();
+        }
+    } catch (err) {
+        console.error('Logout error:', err);
+    }
+
+    window.location.href = 'login.html';
+}

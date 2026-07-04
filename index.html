@@ -44,6 +44,7 @@
         <a href="index.html" class="nav-link active">Upload</a>
         <a href="history.html" class="nav-link">History</a>
     </div>
+    <button onclick="logoutUser()" style="background:none;border:1px solid rgba(255,255,255,0.2);color:white;padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;">Log Out</button>
 </nav>
 
 <div class="hero">
@@ -112,13 +113,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="auth.js"></script>
 <script src="parse.js"></script>
 <script src="audit.js"></script>
 <script>
-    const supabaseClient = window.supabase.createClient(
-        'https://wqrimnvcfduqsdnpcitk.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
-    )
+    if (!window.supabaseClient) {
+        window.supabaseClient = window.supabase.createClient(
+            'https://wqrimnvcfduqsdnpcitk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
+        )
+    }
+
+    const supabaseClient = window.supabaseClient
 
     const redirectToLogin = () => {
         window.location.replace('login.html')
