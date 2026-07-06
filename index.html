@@ -282,6 +282,19 @@
             await window.supabaseClient.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
         }
 
+        if (access.reason === 'paid_credit') {
+            const { data: currentProfile } = await window.supabaseClient
+                .from('profiles')
+                .select('paid_credits')
+                .eq('id', access.userId)
+                .single()
+
+            await window.supabaseClient
+                .from('profiles')
+                .update({ paid_credits: (currentProfile.paid_credits || 1) - 1 })
+                .eq('id', access.userId)
+        }
+
         btn.disabled = false
     }
 
@@ -432,7 +445,7 @@ async function checkUserAccess() {
 
     const { data: profile, error } = await window.supabaseClient
         .from('profiles')
-        .select('free_trial_used')
+        .select('free_trial_used, paid_credits')
         .eq('id', user.id)
         .single()
 
@@ -443,7 +456,8 @@ async function checkUserAccess() {
                     id: user.id,
                     email: user.email,
                     company_name: user.user_metadata?.company_name || '',
-                    free_trial_used: false
+                    free_trial_used: false,
+                    paid_credits: 0
                 }
             ])
 
@@ -461,6 +475,10 @@ async function checkUserAccess() {
 
     if (!profile.free_trial_used) {
         return { allowed: true, reason: 'free_trial', userId: user.id }
+    }
+
+    if (profile.paid_credits > 0) {
+        return { allowed: true, reason: 'paid_credit', userId: user.id }
     }
 
     return { allowed: false, reason: 'payment_required', userId: user.id }
