@@ -97,29 +97,23 @@
             const result = await response.json()
 
             if (result.status === 'COMPLETED') {
-    const parts = result.merchant_reference.split('_')
-    const userId = parts[1]
+    const params = new URLSearchParams(window.location.search)
+    const orderTrackingId = params.get('OrderTrackingId')
 
-    const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('paid_credits')
-        .eq('id', userId)
-        .single()
-
-    const newCredits = (profile?.paid_credits || 0) + 1
-
-    await supabaseClient
-        .from('profiles')
-        .update({ paid_credits: newCredits })
-        .eq('id', userId)
+    const creditResponse = await fetch('/api/credit-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderTrackingId })
+    })
+    const creditData = await creditResponse.json()
 
     card.innerHTML = `
         <div class="icon success"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></div>
         <h1>Payment successful</h1>
         <p>1 audit credit added to your account. You can now upload and view results.</p>
         <a href="index.html" class="btn">Go to Dashboard</a>
-    `              
-            } else if (result.status === 'PENDING') {
+    `
+} else if (result.status === 'PENDING') {
                 card.innerHTML = `
                     <div class="icon pending"><svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
                     <h1>Payment pending</h1>
