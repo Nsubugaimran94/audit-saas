@@ -279,20 +279,19 @@
         await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name)
 
         if (access.reason === 'free_trial') {
-            await window.supabaseClient.from('profiles').update({ free_trial_used: true }).eq('id', access.userId)
+            await fetch('/api/mark-trial-used', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: access.userId })
+            })
         }
 
         if (access.reason === 'paid_credit') {
-            const { data: currentProfile } = await window.supabaseClient
-                .from('profiles')
-                .select('paid_credits')
-                .eq('id', access.userId)
-                .single()
-
-            await window.supabaseClient
-                .from('profiles')
-                .update({ paid_credits: (currentProfile.paid_credits || 1) - 1 })
-                .eq('id', access.userId)
+            await fetch('/api/consume-credit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: access.userId })
+            })
         }
 
         btn.disabled = false
