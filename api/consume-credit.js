@@ -36,7 +36,15 @@ export default async function handler(req, res) {
         })
 
         const updated = await updateResponse.json()
-        return res.status(200).json({ success: true, paid_credits: updated[0]?.paid_credits })
+
+        if (!updateResponse.ok || !Array.isArray(updated) || updated.length === 0) {
+            return res.status(500).json({
+                error: 'Credit update did not affect any rows — write may have silently failed',
+                details: updated
+            })
+        }
+
+        return res.status(200).json({ success: true, paid_credits: updated[0].paid_credits })
 
     } catch (error) {
         return res.status(500).json({ error: error.message })

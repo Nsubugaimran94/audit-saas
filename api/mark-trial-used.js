@@ -23,7 +23,15 @@ export default async function handler(req, res) {
         })
 
         const updated = await updateResponse.json()
-        return res.status(200).json({ success: true, free_trial_used: updated[0]?.free_trial_used })
+
+        if (!updateResponse.ok || !Array.isArray(updated) || updated.length === 0) {
+            return res.status(500).json({
+                error: 'Trial flag update did not affect any rows — write may have silently failed',
+                details: updated
+            })
+        }
+
+        return res.status(200).json({ success: true, free_trial_used: updated[0].free_trial_used })
 
     } catch (error) {
         return res.status(500).json({ error: error.message })
