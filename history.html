@@ -71,9 +71,17 @@
     async function loadHistory() {
         const list = document.getElementById('auditList')
 
+        const { data: { user } } = await supabaseClient.auth.getUser()
+
+        if (!user) {
+            list.innerHTML = `<div class="empty-state"><p>Please sign in to view your audit history.</p></div>`
+            return
+        }
+
         const { data, error } = await supabaseClient
             .from('audit_results')
             .select('*')
+            .eq('user_id', user.id)
             .order('created_at', { ascending: false })
             .limit(50)
 

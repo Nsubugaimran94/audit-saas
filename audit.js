@@ -136,7 +136,8 @@ async function saveAuditResults(supabaseClient, auditResults, parsedData, fileNa
                 rows_checked: auditResults.total_rows_checked,
                 total_flags: auditResults.total_flags,
                 flags: auditResults.flags,
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                user_id: userid
             }
         ])
 

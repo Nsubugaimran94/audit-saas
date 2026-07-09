@@ -276,7 +276,7 @@
         message.textContent = `Audit complete — ${auditResults.total_flags} issue(s) found.`
 
         displayResults(auditResults, parsedData)
-        await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name)
+        await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId)
 
         if (access.reason === 'free_trial') {
             await fetch('/api/mark-trial-used', {
