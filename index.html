@@ -281,23 +281,29 @@
         message.textContent = `Audit complete — ${auditResults.total_flags} issue(s) found.`
 
         displayResults(auditResults, parsedData)
-        console.log('DEBUG - access object before save:', access)
-        await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId)
 
-        if (access.reason === 'free_trial') {
-            await fetch('/api/mark-trial-used', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: access.userId })
-            })
-        }
+        try {
+            await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId)
 
-        if (access.reason === 'paid_credit') {
-            await fetch('/api/consume-credit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: access.userId })
-            })
+            if (access.reason === 'free_trial') {
+                await fetch('/api/mark-trial-used', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: access.userId })
+                })
+            }
+
+            if (access.reason === 'paid_credit') {
+                await fetch('/api/consume-credit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: access.userId })
+                })
+            }
+        } catch (saveErr) {
+            console.error('Save/credit sequence failed:', saveErr)
+            message.style.color = 'var(--danger)'
+            message.textContent = 'Audit ran but failed to save. Your credit was not charged. Please contact support.'
         }
 
         btn.disabled = false
