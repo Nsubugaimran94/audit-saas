@@ -276,6 +276,7 @@
         message.textContent = `Audit complete — ${auditResults.total_flags} issue(s) found.`
 
         displayResults(auditResults, parsedData)
+        console.log('DEBUG - access object before save:', access)
         await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId)
 
         if (access.reason === 'free_trial') {
