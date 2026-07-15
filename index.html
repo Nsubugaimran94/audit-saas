@@ -181,9 +181,7 @@
         document.getElementById('filePreviewName').textContent = file.name
         document.getElementById('filePreviewSize').textContent = (file.size / 1024).toFixed(1) + ' KB'
 
-        document.getElementById('fileSelected').classList.add('show')
-        document.getElementById('fileName').textContent = file.name
-        document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB'
+  
     }
 
     function removeFile(e) {
