@@ -64,8 +64,59 @@ async function inspectPdfStructure(file) {
         y: Math.round(item.transform[5])
     }))
 
- items.slice(40, 90).forEach((item, i) => {
-    console.log(`Item ${i + 40}:`, item.text, '| x:', item.x, '| y:', item.y)
-})
+    console.log('RAW PDF TEXT ITEMS (page 1):', items)
+    const nakRows = extractNakTable(items)
+
+    items.slice(40, 90).forEach((item, i) => {
+        console.log(`Item ${i + 40}:`, item.text, '| x:', item.x, '| y:', item.y)
+    })
+
     return items
+}
+
+function extractNakTable(items) {
+    const rowsByY = {}
+    items.forEach(item => {
+        const yKey = item.y
+        if (!rowsByY[yKey]) rowsByY[yKey] = []
+        rowsByY[yKey].push(item)
+    })
+
+    const columnRanges = {
+        DATE: [40, 95],
+        PARTICULARS: [95, 350],
+        'INV.NO.': [350, 400],
+        AMOUNT: [400, 462],
+        PAYMENTS: [462, 540]
+    }
+
+    function assignColumn(x) {
+        for (const [col, [min, max]] of Object.entries(columnRanges)) {
+            if (x >= min && x < max) return col
+        }
+        return null
+    }
+
+    const structuredRows = []
+
+    Object.keys(rowsByY)
+        .sort((a, b) => b - a)
+        .forEach(yKey => {
+            const rowItems = rowsByY[yKey].sort((a, b) => a.x - b.x)
+            const row = { DATE: '', PARTICULARS: '', 'INV.NO.': '', AMOUNT: '', PAYMENTS: '' }
+
+            rowItems.forEach(item => {
+                const col = assignColumn(item.x)
+                if (col && item.text.trim()) {
+                    row[col] = (row[col] + ' ' + item.text).trim()
+                }
+            })
+
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(row.DATE.trim())) {
+                structuredRows.push(row)
+            }
+        })
+
+    console.log('STRUCTURED NAK ROWS:', structuredRows.slice(0, 10))
+    return structuredRows
 }
