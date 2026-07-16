@@ -117,6 +117,8 @@ function extractNakTable(items) {
             }
         })
 
-    console.log('STRUCTURED NAK ROWS:', structuredRows.slice(0, 10))
+    structuredRows.slice(0, 10).forEach((row, i) => {
+    console.log(`Row ${i}:`, JSON.stringify(row))
+})
     return structuredRows
 }
