@@ -227,6 +227,12 @@
             message.textContent = 'Please select a file first.'
             return
         }
+        const uncheckedBoxes = document.querySelectorAll('.col-check:not(:checked)')
+if (uncheckedBoxes.length > 0) {
+    message.style.color = 'var(--danger)'
+    message.textContent = 'Your document must include all listed columns to be audited. Please confirm the format or contact support.'
+    return
+}
 
         const access = await checkUserAccess()
 
