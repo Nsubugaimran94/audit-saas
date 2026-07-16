@@ -64,6 +64,6 @@ async function inspectPdfStructure(file) {
         y: Math.round(item.transform[5])
     }))
 
-    console.log('RAW PDF TEXT ITEMS (page 1):', items)
+    console.log('RAW PDF TEXT ITEMS (page 1):', JSON.stringify(items.slice(0, 40), null, 2))
     return items
 }
