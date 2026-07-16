@@ -117,10 +117,13 @@ function extractNakTable(items) {
             }
         })
 
-    structuredRows.forEach(row => {
-        row.AMOUNT = row.AMOUNT.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
-        row.PAYMENTS = row.PAYMENTS.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
-    })
+   structuredRows.forEach(row => {
+    row.AMOUNT = row.AMOUNT.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+    row.PAYMENTS = row.PAYMENTS.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+
+    if (row.AMOUNT === '') row.AMOUNT = '0'
+    if (row.PAYMENTS === '') row.PAYMENTS = '0'
+})
 
     structuredRows.slice(0, 10).forEach((row, i) => {
         console.log(`Row ${i}:`, JSON.stringify(row))
