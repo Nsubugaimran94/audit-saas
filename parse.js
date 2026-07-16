@@ -48,3 +48,22 @@ async function parseDocument(file) {
         reader.readAsArrayBuffer(file)
     })
 }
+
+async function inspectPdfStructure(file) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+
+    const arrayBuffer = await file.arrayBuffer()
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+
+    const page = await pdf.getPage(1)
+    const textContent = await page.getTextContent()
+
+    const items = textContent.items.map(item => ({
+        text: item.str,
+        x: Math.round(item.transform[4]),
+        y: Math.round(item.transform[5])
+    }))
+
+    console.log('RAW PDF TEXT ITEMS (page 1):', items)
+    return items
+}
