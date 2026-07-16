@@ -117,8 +117,14 @@ function extractNakTable(items) {
             }
         })
 
+    structuredRows.forEach(row => {
+        row.AMOUNT = row.AMOUNT.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+        row.PAYMENTS = row.PAYMENTS.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+    })
+
     structuredRows.slice(0, 10).forEach((row, i) => {
-    console.log(`Row ${i}:`, JSON.stringify(row))
-})
+        console.log(`Row ${i}:`, JSON.stringify(row))
+    })
+
     return structuredRows
 }
