@@ -505,6 +505,32 @@ main {
     margin-top: 2px;
 }
 
+/* COLUMN CHECKLIST */
+.column-checklist {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 1rem;
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 6px 0;
+    cursor: pointer;
+}
+
+.check-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
 /* AUDIT BUTTON */
 .audit-btn {
     width: 100%;
