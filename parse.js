@@ -1,4 +1,20 @@
 async function parseDocument(file) {
+    const isPdf = file.name.toLowerCase().endsWith('.pdf')
+
+    if (isPdf) {
+        const invoices = await extractPdfInvoices(file)
+
+        let client = 'NAK Shipping `& Logistics Ltd'
+        let supplier = 'White Horse Carriers Ltd'
+
+        return {
+            invoices: invoices,
+            client: client,
+            supplier: supplier,
+            statement_period: new Date().getFullYear().toString()
+        }
+    }
+
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
 
@@ -6,24 +22,13 @@ async function parseDocument(file) {
             try {
                 const data = new Uint8Array(e.target.result)
                 const workbook = XLSX.read(data, { type: 'array' })
-
-                // Get first sheet
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-
-                // Convert to JSON
                 const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' })
 
-                console.log('Raw extracted rows:', rows)
-
-                // Try to detect client and supplier from first few rows
                 let client = 'Unknown Client'
                 let supplier = 'Unknown Supplier'
 
-                // Look for client/supplier info in raw sheet data
-                const rawRows = XLSX.utils.sheet_to_json(firstSheet, { 
-                    header: 1, 
-                    defval: '' 
-                })
+                const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' })
 
                 rawRows.slice(0, 10).forEach(row => {
                     const rowText = row.join(' ').toUpperCase()
@@ -38,7 +43,6 @@ async function parseDocument(file) {
                     statement_period: new Date().getFullYear().toString(),
                     raw_rows: rawRows
                 })
-
             } catch(err) {
                 reject(err)
             }
@@ -49,29 +53,29 @@ async function parseDocument(file) {
     })
 }
 
-async function inspectPdfStructure(file) {
+async function extractPdfInvoices(file) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 
     const arrayBuffer = await file.arrayBuffer()
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
 
-    const page = await pdf.getPage(1)
-    const textContent = await page.getTextContent()
+    let allRows = []
 
-    const items = textContent.items.map(item => ({
-        text: item.str,
-        x: Math.round(item.transform[4]),
-        y: Math.round(item.transform[5])
-    }))
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum)
+        const textContent = await page.getTextContent()
 
-    console.log('RAW PDF TEXT ITEMS (page 1):', items)
-    const nakRows = extractNakTable(items)
+        const items = textContent.items.map(item => ({
+            text: item.str,
+            x: Math.round(item.transform[4]),
+            y: Math.round(item.transform[5])
+        }))
 
-    items.slice(40, 90).forEach((item, i) => {
-        console.log(`Item ${i + 40}:`, item.text, '| x:', item.x, '| y:', item.y)
-    })
+        const pageRows = extractNakTable(items)
+        allRows = allRows.concat(pageRows)
+    }
 
-    return items
+    return allRows
 }
 
 function extractNakTable(items) {
@@ -117,16 +121,12 @@ function extractNakTable(items) {
             }
         })
 
-   structuredRows.forEach(row => {
-    row.AMOUNT = row.AMOUNT.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
-    row.PAYMENTS = row.PAYMENTS.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+    structuredRows.forEach(row => {
+        row.AMOUNT = row.AMOUNT.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
+        row.PAYMENTS = row.PAYMENTS.replace('$', '').replace(/,/g, '').replace('-', '0').trim()
 
-    if (row.AMOUNT === '') row.AMOUNT = '0'
-    if (row.PAYMENTS === '') row.PAYMENTS = '0'
-})
-
-    structuredRows.slice(0, 10).forEach((row, i) => {
-        console.log(`Row ${i}:`, JSON.stringify(row))
+        if (row.AMOUNT === '') row.AMOUNT = '0'
+        if (row.PAYMENTS === '') row.PAYMENTS = '0'
     })
 
     return structuredRows
