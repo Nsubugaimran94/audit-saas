@@ -88,10 +88,10 @@ function extractNakTable(items) {
 
     const columnRanges = {
         DATE: [40, 95],
-        PARTICULARS: [95, 350],
-        'INV.NO.': [350, 400],
-        AMOUNT: [400, 462],
-        PAYMENTS: [462, 540]
+        PARTICULARS: [95, 360],
+        'INV.NO.': [360, 410],
+        AMOUNT: [410, 472],
+        PAYMENTS: [472, 550]
     }
 
     function assignColumn(x) {
@@ -115,6 +115,14 @@ function extractNakTable(items) {
                     row[col] = (row[col] + ' ' + item.text).trim()
                 }
             })
+
+            const invoiceMatch = (row.PARTICULARS + ' ' + row['INV.NO.']).match(/WH\s?\d{3,5}/i)
+            if (invoiceMatch) {
+                row['INV.NO.'] = invoiceMatch[0].replace(/\s+/g, ' ').trim()
+                row.PARTICULARS = row.PARTICULARS.replace(invoiceMatch[0], '').trim()
+            } else if (row['INV.NO.'] === '$' || row['INV.NO.'].trim() === '$') {
+                row['INV.NO.'] = ''
+            }
 
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(row.DATE.trim())) {
                 structuredRows.push(row)
