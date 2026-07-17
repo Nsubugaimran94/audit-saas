@@ -43,7 +43,7 @@ function auditStatement(invoices) {
 
     // First pass - collect all valid invoice numbers
     invoices.forEach(row => {
-        if (row['INV.NO.'] && row['AMOUNT'] && !row['PAYMENTS']) {
+        if (row['INV.NO.'] && row['AMOUNT'] && parseFloat(row['PAYMENTS']) === 0) {
             validInvoiceNumbers.push(row['INV.NO.'].toString().trim())
         }
     })
