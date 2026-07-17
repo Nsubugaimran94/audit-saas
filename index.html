@@ -292,9 +292,7 @@ if (uncheckedBoxes.length > 0) {
         setProgress(50, '🔍 Auditing...')
         const parsedData = await parseDocument(file)
 
-        if (file.name.toLowerCase().endsWith('.pdf')) {
-            await inspectPdfStructure(file)
-        }
+        
 
         setProgress(80, '🔍 Auditing...')
         const auditResults = auditStatement(parsedData.invoices)
