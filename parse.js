@@ -2,10 +2,13 @@ async function parseDocument(file) {
     const isPdf = file.name.toLowerCase().endsWith('.pdf')
 
     if (isPdf) {
-        const invoices = await extractPdfInvoices(file)
+        const { invoices, headerText } = await extractPdfInvoicesWithHeader(file)
 
-        let client = 'NAK Shipping `& Logistics Ltd'
-        let supplier = 'White Horse Carriers Ltd'
+        let client = 'Unknown Client'
+        let supplier = 'Unknown Supplier'
+
+        if (headerText.includes('NAK')) client = 'NAK Shipping & Logistics Ltd'
+        if (headerText.includes('WHITE HORSE')) supplier = 'White Horse Carriers Ltd'
 
         return {
             invoices: invoices,
@@ -53,13 +56,14 @@ async function parseDocument(file) {
     })
 }
 
-async function extractPdfInvoices(file) {
+async function extractPdfInvoicesWithHeader(file) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 
     const arrayBuffer = await file.arrayBuffer()
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
 
     let allRows = []
+    let headerText = ''
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
@@ -71,11 +75,15 @@ async function extractPdfInvoices(file) {
             y: Math.round(item.transform[5])
         }))
 
+        if (pageNum === 1) {
+            headerText = items.map(item => item.text).join(' ').toUpperCase()
+        }
+
         const pageRows = extractNakTable(items)
         allRows = allRows.concat(pageRows)
     }
 
-    return allRows
+    return { invoices: allRows, headerText: headerText }
 }
 
 function extractNakTable(items) {
