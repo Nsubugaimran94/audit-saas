@@ -147,6 +147,7 @@ function extractNakTable(items) {
     })
 
     const detected = detectColumnPositions(items)
+    console.log('DETECTED COLUMNS:', JSON.stringify(detected))
     const columnRanges = buildColumnRanges(detected)
 
     function assignColumn(x) {
