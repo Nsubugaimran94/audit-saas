@@ -125,8 +125,9 @@ function extractNakTable(items) {
             })
 
             const cleanInvNo = row['INV.NO.'].replace(/\$/g, '').trim()
+            const looksLikeAmount = /^[\d,]+\.\d{2}$/.test(cleanInvNo) || /^[\d,]+$/.test(cleanInvNo)
 
-            if (cleanInvNo && cleanInvNo.length >= 2) {
+            if (cleanInvNo && cleanInvNo.length >= 2 && !looksLikeAmount) {
                 // Trust the column position - genuinely extracted, works for any invoice format
                 row['INV.NO.'] = cleanInvNo
             } else {
