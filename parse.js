@@ -124,12 +124,21 @@ function extractNakTable(items) {
                 }
             })
 
-            const invoiceMatch = (row.PARTICULARS + ' ' + row['INV.NO.']).match(/WH\s?\d{3,5}/i)
-            if (invoiceMatch) {
-                row['INV.NO.'] = invoiceMatch[0].replace(/\s+/g, ' ').trim()
-                row.PARTICULARS = row.PARTICULARS.replace(invoiceMatch[0], '').trim()
-            } else if (row['INV.NO.'] === '$' || row['INV.NO.'].trim() === '$') {
-                row['INV.NO.'] = ''
+            const cleanInvNo = row['INV.NO.'].replace(/\$/g, '').trim()
+
+            if (cleanInvNo && cleanInvNo.length >= 2) {
+                // Trust the column position - genuinely extracted, works for any invoice format
+                row['INV.NO.'] = cleanInvNo
+            } else {
+                // Column position gave nothing useful - try generic pattern in PARTICULARS
+                // Matches things like: WH 2762, INV-1234, ABC5678, PO 9012
+                const genericMatch = row.PARTICULARS.match(/\b[A-Z]{2,5}[\s\-\/]??\d{3,6}\b/)
+                if (genericMatch) {
+                    row['INV.NO.'] = genericMatch[0].replace(/\s+/g, ' ').trim()
+                    row.PARTICULARS = row.PARTICULARS.replace(genericMatch[0], '').trim()
+                } else {
+                    row['INV.NO.'] = ''
+                }
             }
 
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(row.DATE.trim())) {
