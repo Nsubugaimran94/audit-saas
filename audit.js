@@ -2,9 +2,43 @@
 // AUDIT LOGIC - NAK Shipping vs White Horse
 // ============================================
 
-const RATES = {
-    '20FT': { expected: 950, min: 900, max: 1000 },
-    '40FT': { expected: 1900, min: 1800, max: 2000 }
+// Calculate expected rates from the actual invoices in the statement
+function calculateExpectedRates(invoices) {
+    const ratesByType = { '20FT': [], '40FT': [] }
+
+    invoices.forEach(row => {
+        const particulars = row['PARTICULARS'] || ''
+        const amount = parseFloat(row['AMOUNT']) || 0
+
+        if (amount <= 0) return
+
+        const container = extractContainerInfo(particulars)
+        if (container && ratesByType[container.type]) {
+            const ratePerContainer = amount / container.count
+            ratesByType[container.type].push(ratePerContainer)
+        }
+    })
+
+    function median(arr) {
+        if (arr.length === 0) return null
+        const sorted = [...arr].sort((a, b) => a - b)
+        const mid = Math.floor(sorted.length / 2)
+        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
+    }
+
+    const rates = {}
+    for (const type of Object.keys(ratesByType)) {
+        const med = median(ratesByType[type])
+        if (med !== null) {
+            rates[type] = {
+                expected: Math.round(med),
+                min: Math.round(med * 0.9),
+                max: Math.round(med * 1.1)
+            }
+        }
+    }
+
+    return rates
 }
 
 // Extract container info from PARTICULARS text
@@ -38,6 +72,7 @@ function excelSerialToDate(serial) {
 // Main audit function
 function auditStatement(invoices) {
     const flags = []
+    const RATES = calculateExpectedRates(invoices)
     const invoiceNumbers = []
     const validInvoiceNumbers = []
 
