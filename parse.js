@@ -86,6 +86,58 @@ async function extractPdfInvoicesWithHeader(file) {
     return { invoices: allRows, headerText: headerText }
 }
 
+function detectColumnPositions(items) {
+    const headerSynonyms = {
+        DATE: ['DATE', 'TXN DATE', 'TRANSACTION DATE'],
+        PARTICULARS: ['PARTICULARS', 'DESCRIPTION', 'DETAILS', 'NARRATION'],
+        'INV.NO.': ['INV.NO.', 'INVOICE NO', 'INVOICE NUMBER', 'REFERENCE', 'REF', 'INV NO'],
+        AMOUNT: ['AMOUNT', 'CHARGED', 'DEBIT', 'CHARGES'],
+        PAYMENTS: ['PAYMENTS', 'SETTLED', 'CREDIT', 'PAID']
+    }
+
+    const detected = {}
+
+    items.forEach(item => {
+        const text = item.text.trim().toUpperCase()
+        if (!text) return
+
+        for (const [col, synonyms] of Object.entries(headerSynonyms)) {
+            if (!detected[col] && synonyms.some(s => text === s || text.includes(s))) {
+                detected[col] = item.x
+            }
+        }
+    })
+
+    return detected
+}
+
+function buildColumnRanges(detected) {
+    const order = ['DATE', 'PARTICULARS', 'INV.NO.', 'AMOUNT', 'PAYMENTS']
+    const foundCols = order.filter(col => detected[col] !== undefined)
+
+    if (foundCols.length < 3) {
+        // Not enough headers detected - fall back to NAK's known-good boundaries
+        return {
+            DATE: [40, 95],
+            PARTICULARS: [95, 350],
+            'INV.NO.': [350, 400],
+            AMOUNT: [400, 462],
+            PAYMENTS: [462, 540]
+        }
+    }
+
+    const sorted = foundCols.sort((a, b) => detected[a] - detected[b])
+    const ranges = {}
+
+    sorted.forEach((col, i) => {
+        const start = detected[col] - 15
+        const end = i < sorted.length - 1 ? detected[sorted[i + 1]] - 15 : detected[col] + 200
+        ranges[col] = [start, end]
+    })
+
+    return ranges
+}
+
 function extractNakTable(items) {
     const rowsByY = {}
     items.forEach(item => {
@@ -94,13 +146,8 @@ function extractNakTable(items) {
         rowsByY[yKey].push(item)
     })
 
-    const columnRanges = {
-        DATE: [40, 95],
-        PARTICULARS: [95, 360],
-        'INV.NO.': [360, 410],
-        AMOUNT: [410, 472],
-        PAYMENTS: [472, 550]
-    }
+    const detected = detectColumnPositions(items)
+    const columnRanges = buildColumnRanges(detected)
 
     function assignColumn(x) {
         for (const [col, [min, max]] of Object.entries(columnRanges)) {
