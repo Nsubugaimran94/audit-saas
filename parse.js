@@ -64,6 +64,7 @@ async function extractPdfInvoicesWithHeader(file) {
 
     let allRows = []
     let headerText = ''
+    let columnRanges = null
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
@@ -77,9 +78,11 @@ async function extractPdfInvoicesWithHeader(file) {
 
         if (pageNum === 1) {
             headerText = items.map(item => item.text).join(' ').toUpperCase()
+            const detected = detectColumnPositions(items)
+            columnRanges = buildColumnRanges(detected)
         }
 
-        const pageRows = extractNakTable(items)
+        const pageRows = extractNakTable(items, columnRanges)
         allRows = allRows.concat(pageRows)
     }
 
@@ -102,7 +105,7 @@ function detectColumnPositions(items) {
         if (!text) return
 
         for (const [col, synonyms] of Object.entries(headerSynonyms)) {
-            if (!detected[col] && synonyms.some(s => text === s || text.includes(s))) {
+            if (!detected[col] && synonyms.some(s => text === s)) {
                 detected[col] = item.x
             }
         }
@@ -138,17 +141,13 @@ function buildColumnRanges(detected) {
     return ranges
 }
 
-function extractNakTable(items) {
+function extractNakTable(items, columnRanges) {
     const rowsByY = {}
     items.forEach(item => {
         const yKey = item.y
         if (!rowsByY[yKey]) rowsByY[yKey] = []
         rowsByY[yKey].push(item)
     })
-
-    const detected = detectColumnPositions(items)
-    console.log('DETECTED COLUMNS:', JSON.stringify(detected))
-    const columnRanges = buildColumnRanges(detected)
 
     function assignColumn(x) {
         for (const [col, [min, max]] of Object.entries(columnRanges)) {
