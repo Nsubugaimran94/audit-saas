@@ -196,6 +196,10 @@ function extractNakTable(items, columnRanges) {
                 }
             }
 
+            if (row.DATE.trim()) {
+                console.log('CANDIDATE ROW:', JSON.stringify(row))
+            }
+
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(row.DATE.trim())) {
                 structuredRows.push(row)
             }
