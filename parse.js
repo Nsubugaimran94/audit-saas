@@ -80,6 +80,8 @@ async function extractPdfInvoicesWithHeader(file) {
             headerText = items.map(item => item.text).join(' ').toUpperCase()
             const detected = detectColumnPositions(items)
             columnRanges = buildColumnRanges(detected)
+            console.log('PAGE 1 DETECTED:', JSON.stringify(detected))
+            console.log('COLUMN RANGES:', JSON.stringify(columnRanges))
         }
 
         const pageRows = extractNakTable(items, columnRanges)
