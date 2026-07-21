@@ -135,8 +135,13 @@ function buildColumnRanges(detected) {
     const ranges = {}
 
     sorted.forEach((col, i) => {
-        const start = detected[col] - 15
-        const end = i < sorted.length - 1 ? detected[sorted[i + 1]] - 15 : detected[col] + 200
+        const currentX = detected[col]
+        const prevX = i > 0 ? detected[sorted[i - 1]] : null
+        const nextX = i < sorted.length - 1 ? detected[sorted[i + 1]] : null
+
+        const start = prevX !== null ? Math.round((prevX + currentX) / 2) : currentX - 60
+        const end = nextX !== null ? Math.round((currentX + nextX) / 2) : currentX + 200
+
         ranges[col] = [start, end]
     })
 
