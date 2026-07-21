@@ -209,5 +209,9 @@ function extractNakTable(items, columnRanges) {
         if (row.PAYMENTS === '') row.PAYMENTS = '0'
     })
 
+    structuredRows.slice(0, 5).forEach((row, i) => {
+        console.log(`STRUCTURED Row ${i}:`, JSON.stringify(row))
+    })
+
     return structuredRows
 }
