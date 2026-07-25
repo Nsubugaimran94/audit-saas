@@ -160,6 +160,7 @@
                         <span class="audit-badge ${hasFlags ? 'issues' : 'clean'}">
                             ${hasFlags ? `⚠ ${audit.total_flags} issue(s)` : '✓ Clean'}
                         </span>
+                        <button onclick="deleteAudit(${audit.id}, event)" style="background:none;border:1px solid rgba(220,38,38,0.3);color:#DC2626;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;margin-left:8px;">Delete</button>
                     </div>
                     <div class="audit-row-meta">
                         <div class="audit-meta-item">
@@ -192,6 +193,30 @@
         const drawer = document.getElementById(`drawer-${index}`)
         if (drawer) drawer.classList.toggle('open')
     }
+    function toggleDrawer(index) {
+    const drawer = document.getElementById(`drawer-${index}`)
+    if (drawer) drawer.classList.toggle('open')
+}
+
+async function deleteAudit(auditId, event) {
+    event.stopPropagation()
+
+    if (!confirm('Delete this audit permanently? This cannot be undone.')) {
+        return
+    }
+
+    const { error } = await supabaseClient
+        .from('audit_results')
+        .delete()
+        .eq('id', auditId)
+
+    if (error) {
+        alert('Failed to delete: ' + error.message)
+        return
+    }
+
+    loadHistory()
+}
 
     function filterAudits(type, btn) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
