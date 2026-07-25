@@ -128,12 +128,11 @@ async function registerUser(event) {
             if (profileError) console.error('Profile insert error:', profileError);
         }
 
-        if (message) {
-            message.style.color = 'var(--success)';
-            message.textContent = 'Account created! Redirecting...';
-        }
-
-        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+       if (message) {
+    message.style.color = 'var(--success)';
+    message.innerHTML = '✅ Account created! Check your email inbox (including spam/junk) and click the confirmation link before signing in.';
+}
+if (btn) { btn.textContent = 'Check Your Email'; }
     } catch (err) {
         console.error('registerUser error:', err);
         if (message) {
