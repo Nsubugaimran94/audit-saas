@@ -171,12 +171,15 @@ function extractNakTable(items, columnRanges) {
             const rowItems = rowsByY[yKey].sort((a, b) => a.x - b.x)
             const row = { DATE: '', PARTICULARS: '', 'INV.NO.': '', AMOUNT: '', PAYMENTS: '' }
 
-            rowItems.forEach(item => {
-                const col = assignColumn(item.x)
-                if (col && item.text.trim()) {
-                    row[col] = (row[col] + ' ' + item.text).trim()
-                }
-            })
+           rowItems.forEach(item => {
+    const col = assignColumn(item.x)
+    if (yKey == 599) {
+        console.log(`ITEM: "${item.text}" | x:${item.x} | assigned to:`, col)
+    }
+    if (col && item.text.trim()) {
+        row[col] = (row[col] + ' ' + item.text).trim()
+    }
+})
 
             const cleanInvNo = row['INV.NO.'].replace(/\$/g, '').trim()
             const looksLikeAmount = /^[\d,]+\.\d{2}$/.test(cleanInvNo) || /^[\d,]+$/.test(cleanInvNo)
