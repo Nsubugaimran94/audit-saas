@@ -199,13 +199,16 @@ function extractNakTable(items, columnRanges) {
                 }
             }
 
-            if (row.DATE.trim()) {
-                console.log('CANDIDATE ROW:', JSON.stringify(row))
-            }
+            const dateMatch = row.DATE.match(/\d{2}\/\d{2}\/\d{4}/)
 
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(row.DATE.trim())) {
-                structuredRows.push(row)
-            }
+if (dateMatch) {
+    const leftoverText = row.DATE.replace(dateMatch[0], '').trim()
+    row.DATE = dateMatch[0]
+    if (leftoverText) {
+        row.PARTICULARS = (leftoverText + ' ' + row.PARTICULARS).trim()
+    }
+    structuredRows.push(row)
+}
         })
 
     structuredRows.forEach(row => {
