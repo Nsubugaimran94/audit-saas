@@ -105,9 +105,11 @@ function detectColumnPositions(items) {
         if (!text) return
 
         for (const [col, synonyms] of Object.entries(headerSynonyms)) {
-            if (!detected[col] && synonyms.some(s => text === s)) {
-                detected[col] = item.x
-            }
+            const cleanedText = text.replace(/[\(\)\$.,]/g, '').trim()
+
+if (!detected[col] && synonyms.some(s => cleanedText === s || cleanedText === s.replace(/\./g, ''))) {
+    detected[col] = item.x
+}
         }
     })
 
