@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditLog — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B1F3A">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #0B1F3A;
+            --navy-mid: #132B4E;
+            --navy-light: #1E3F6E;
+            --accent: #2563EB;
+            --accent-light: #3B82F6;
+            --surface: #F8FAFC;
+            --surface-2: #EFF4FB;
+            --border: rgba(11,31,58,0.1);
+            --border-strong: rgba(11,31,58,0.2);
+            --text-primary: #0B1F3A;
+            --text-secondary: #4A6080;
+            --text-muted: #8FA3BB;
+            --success: #059669;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --critical: #991B1B;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        nav {
+            background: var(--navy);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-mark { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .logo-mark svg { width: 18px; height: 18px; fill: white; }
+        .logo-text { font-size: 16px; font-weight: 600; color: white; letter-spacing: -0.3px; }
+        .logo-text span { color: var(--accent-light); }
+
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-link { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 400; padding: 6px 14px; border-radius: 6px; transition: all 0.15s; }
+        .nav-link:hover { color: white; background: rgba(255,255,255,0.08); }
+        .nav-link.active { color: white; background: rgba(37,99,235,0.3); }
+
+        .page-header { background: var(--navy); padding: 2.5rem 2rem 3.5rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 600; color: white; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .page-header p { font-size: 14px; color: rgba(255,255,255,0.4); font-weight: 300; }
+
+        main { max-width: 900px; margin: -1.5rem auto 0; padding: 0 1.5rem 4rem; position: relative; z-index: 10; }
+
+        /* HERO METRIC */
+        .hero-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(11,31,58,0.08);
+            padding: 2.5rem;
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .hero-value {
+            font-size: 3rem;
+            font-weight: 600;
+            color: var(--danger);
+            font-family: 'DM Mono', monospace;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .hero-value.zero { color: var(--success); }
+
+        .hero-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .spinner {
+            width: 24px; height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* SUPPORTING STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* BREAKDOWN BY FLAG TYPE */
+        .breakdown-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .breakdown-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .breakdown-row:last-child { border-bottom: none; }
+
+        .breakdown-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .breakdown-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .breakdown-dot.critical { background: var(--danger); }
+        .breakdown-dot.high { background: var(--warning); }
+
+        .breakdown-amount {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .breakdown-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .empty-state h3 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+        .empty-state p { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; }
+
+        .empty-state a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--navy);
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 9px 18px;
+            border-radius: 8px;
+        }
+
+        .disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="logo">
+        <div class="logo-mark">
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        </div>
+        <span class="logo-text">Audit<span>Log</span></span>
+    </a>
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">Upload</a>
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="history.html" class="nav-link">History</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Estimated financial exposure identified across your audits</p>
+</div>
+
+<main>
+    <div id="content">
+        <div class="loading-state">
+            <div class="spinner"></div>
+            Calculating your exposure...
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+    // Extracts a dollar amount from a flag's detail text, based on flag type.
+    // Different flag types embed the amount differently in their text.
+    function extractFlagAmount(flag) {
+        const text = flag.detail || ''
+
+        if (flag.type === 'RATE ANOMALY') {
+            // "...Total amount $34700" - we want the delta between actual and expected, not the full amount.
+            // Real overpayment = actual rate paid minus expected rate, times container count.
+            const totalMatch = text.match(/Total amount \$?([\d,]+\.?\d*)/i)
+            const rateMatch = text.match(/charged at \$?([\d,]+\.?\d*)\/container/i)
+            const expectedMatch = text.match(/Expected \$?([\d,]+\.?\d*)/i)
+            const countMatch = text.match(/^(\d+)X/i)
+
+            if (rateMatch && expectedMatch && countMatch) {
+                const actualRate = parseFloat(rateMatch[1].replace(/,/g, ''))
+                const expectedRate = parseFloat(expectedMatch[1].replace(/,/g, ''))
+                const count = parseInt(countMatch[1])
+                const overpaidPerContainer = actualRate - expectedRate
+                return Math.abs(overpaidPerContainer * count)
+            }
+            if (totalMatch) return parseFloat(totalMatch[1].replace(/,/g, ''))
+            return 0
+        }
+
+        if (flag.type === 'GHOST PAYMENT') {
+            const match = text.match(/Payment of \$?([\d,]+\.?\d*)/i)
+            return match ? parseFloat(match[1].replace(/,/g, '')) : 0
+        }
+
+        // DUPLICATE INVOICE and other types - no reliable dollar figure in current text format
+        return 0
+    }
+
+    async function loadDashboard() {
+        const client = window.supabaseClient
+        const { data: { user } } = await client.auth.getUser()
+        const content = document.getElementById('content')
+
+        if (!user) {
+            content.innerHTML = `<div class="empty-state"><p>Please sign in to view your dashboard.</p></div>`
+            return
+        }
+
+        const { data: audits, error } = await client
+            .from('audit_results')
+            .select('*')
+            .eq('user_id', user.id)
+
+        if (error) {
+            content.innerHTML = `<div class="empty-state"><p>Error loading dashboard: ${error.message}</p></div>`
+            return
+        }
+
+        if (!audits || audits.length === 0) {
+            content.innerHTML = `
+                <div class="empty-state">
+                    <h3>No audits yet</h3>
+                    <p>Run your first audit to see your exposure summary here.</p>
+                    <a href="index.html">Upload Statement</a>
+                </div>
+            `
+            return
+        }
+
+        let totalAtRisk = 0
+        let criticalTotal = 0
+        let highTotal = 0
+        let criticalCount = 0
+        let highCount = 0
+        let totalRowsChecked = 0
+
+        audits.forEach(audit => {
+            totalRowsChecked += audit.rows_checked || 0
+            const flags = Array.isArray(audit.flags) ? audit.flags :
+                (typeof audit.flags === 'string' ? JSON.parse(audit.flags) : [])
+
+            flags.forEach(flag => {
+                const amount = extractFlagAmount(flag)
+                totalAtRisk += amount
+
+                if (flag.severity === 'CRITICAL') {
+                    criticalTotal += amount
+                    criticalCount++
+                } else if (flag.severity === 'HIGH') {
+                    highTotal += amount
+                    highCount++
+                }
+            })
+        })
+
+        const formattedTotal = totalAtRisk.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+
+        const content_html = `
+            <div class="hero-card">
+                <div class="hero-label">Total Estimated Exposure</div>
+                <div class="hero-value ${totalAtRisk === 0 ? 'zero' : ''}">$${formattedTotal}</div>
+                <div class="hero-sub">Across ${audits.length} audit${audits.length !== 1 ? 's' : ''} and ${totalRowsChecked} statement rows reviewed</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Audits Run</div>
+                    <div class="stat-value">${audits.length}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Critical Flags</div>
+                    <div class="stat-value" style="color:var(--danger)">${criticalCount}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">High Flags</div>
+                    <div class="stat-value" style="color:var(--warning)">${highCount}</div>
+                </div>
+            </div>
+
+            <div class="breakdown-card">
+                <div class="breakdown-title">Exposure by Severity</div>
+                <div class="breakdown-row">
+                    <div class="breakdown-type">
+                        <div class="breakdown-dot critical"></div>
+                        Critical <span class="breakdown-count">(${criticalCount} flag${criticalCount !== 1 ? 's' : ''})</span>
+                    </div>
+                    <div class="breakdown-amount">$${criticalTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div class="breakdown-row">
+                    <div class="breakdown-type">
+                        <div class="breakdown-dot high"></div>
+                        High <span class="breakdown-count">(${highCount} flag${highCount !== 1 ? 's' : ''})</span>
+                    </div>
+                    <div class="breakdown-amount">$${highTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+                </div>
+            </div>
+
+            <p class="disclaimer">
+                Estimated exposure is calculated from flagged rate anomalies (overpayment vs. expected rate) and ghost payments (payments referencing invoices not found in the statement). This is an estimate to guide review, not a certified financial figure.
+            </p>
+        `
+
+        content.innerHTML = content_html
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const check = setInterval(() => {
+            if (window.supabaseClient) {
+                clearInterval(check)
+                loadDashboard()
+            }
+        }, 50)
+    })
+</script>
+</body>
+</html>
