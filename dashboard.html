@@ -311,6 +311,13 @@
             content.innerHTML = `<div class="empty-state"><p>Please sign in to view your dashboard.</p></div>`
             return
         }
+        const { data: profile } = await client
+    .from('profiles')
+    .select('company_name')
+    .eq('id', user.id)
+    .single()
+
+const companyName = profile?.company_name || 'Your Company'
 
         const { data: audits, error } = await client
             .from('audit_results')
@@ -362,6 +369,9 @@
         const formattedTotal = totalAtRisk.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
         const content_html = `
+        <div style="font-size:14px; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">
+        Welcome back, <strong style="color:var(--text-primary);">${companyName}</strong>
+    </div>
             <div class="hero-card">
                 <div class="hero-label">Total Estimated Exposure</div>
                 <div class="hero-value ${totalAtRisk === 0 ? 'zero' : ''}">$${formattedTotal}</div>
