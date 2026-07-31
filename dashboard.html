@@ -318,6 +318,7 @@
     .single()
 
 const companyName = profile?.company_name || 'Your Company'
+console.log('DEBUG companyName:', JSON.stringify(companyName))
 
         const { data: audits, error } = await client
             .from('audit_results')
