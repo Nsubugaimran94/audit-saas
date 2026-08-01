@@ -302,6 +302,40 @@
         return 0
     }
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+    }
+
+    async function getCompanyDisplayName(client, user) {
+        if (!user) return 'Your Company'
+
+        const metadataName = user.user_metadata?.company_name
+        if (metadataName && String(metadataName).trim()) {
+            return String(metadataName).trim()
+        }
+
+        try {
+            const { data: profile, error } = await client
+                .from('profiles')
+                .select('company_name')
+                .eq('id', user.id)
+                .maybeSingle()
+
+            if (!error && profile?.company_name) {
+                return String(profile.company_name).trim()
+            }
+        } catch (err) {
+            console.warn('Unable to load profile company name:', err)
+        }
+
+        return 'Your Company'
+    }
+
     async function loadDashboard() {
         const client = window.supabaseClient
         const { data: { user } } = await client.auth.getUser()
@@ -311,14 +345,13 @@
             content.innerHTML = `<div class="empty-state"><p>Please sign in to view your dashboard.</p></div>`
             return
         }
-        const { data: profile } = await client
-    .from('profiles')
-    .select('company_name')
-    .eq('id', user.id)
-    .single()
 
-const companyName = profile?.company_name || 'Your Company'
-console.log('DEBUG companyName:', JSON.stringify(companyName))
+        const companyName = await getCompanyDisplayName(client, user)
+        const welcomeHtml = `
+            <div style="font-size:14px; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">
+                Welcome back, <strong style="color:var(--text-primary);">${escapeHtml(companyName)}</strong>
+            </div>
+        `
 
         const { data: audits, error } = await client
             .from('audit_results')
@@ -326,12 +359,16 @@ console.log('DEBUG companyName:', JSON.stringify(companyName))
             .eq('user_id', user.id)
 
         if (error) {
-            content.innerHTML = `<div class="empty-state"><p>Error loading dashboard: ${error.message}</p></div>`
+            content.innerHTML = `
+                ${welcomeHtml}
+                <div class="empty-state"><p>Error loading dashboard: ${escapeHtml(error.message)}</p></div>
+            `
             return
         }
 
         if (!audits || audits.length === 0) {
             content.innerHTML = `
+                ${welcomeHtml}
                 <div class="empty-state">
                     <h3>No audits yet</h3>
                     <p>Run your first audit to see your exposure summary here.</p>
@@ -370,9 +407,7 @@ console.log('DEBUG companyName:', JSON.stringify(companyName))
         const formattedTotal = totalAtRisk.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
         const content_html = `
-        <div style="font-size:14px; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">
-        Welcome back, <strong style="color:var(--text-primary);">${companyName}</strong>
-    </div>
+            ${welcomeHtml}
             <div class="hero-card">
                 <div class="hero-label">Total Estimated Exposure</div>
                 <div class="hero-value ${totalAtRisk === 0 ? 'zero' : ''}">$${formattedTotal}</div>
