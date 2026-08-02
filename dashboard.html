@@ -349,8 +349,9 @@
         const companyName = await getCompanyDisplayName(client, user)
         console.log('DEBUG companyName result:', JSON.stringify(companyName))
         const welcomeHtml = `
-            <div style="font-size:14px; margin-top:1.5rem; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">
-                Welcome back, <strong style="color:var(--text-primary);">${escapeHtml(companyName)}</strong>
+            <div style="text-align:center; margin-top:1.5rem; margin-bottom:1.5rem;">
+                <div style="font-size:11px; font-weight:500; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Welcome back</div>
+                <div style="font-size:1.6rem; font-weight:600; color:var(--navy); letter-spacing:-0.5px;">${escapeHtml(companyName)}</div>
             </div>
         `
 
