@@ -168,7 +168,8 @@ function auditStatement(invoices) {
                     })
                 }
             })
-        })
+        }
+    })
 
     return {
         total_rows_checked: invoices.length,
