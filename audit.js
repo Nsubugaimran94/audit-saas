@@ -139,25 +139,35 @@ function auditStatement(invoices) {
             }
         }
 
-        // CHECK 4 - Payment referencing non-existent invoice
-        if (payment > 0 && invNo) {
-            if (!validInvoiceNumbers.includes(invNo)) {
-                flags.push({
-                    row: rowNum,
-                    inv_no: invNo,
-                    type: 'GHOST PAYMENT',
-                    severity: 'CRITICAL',
-                    detail: `Payment of $${payment} references invoice ${invNo} which does not exist in this statement`
-                })
-            }
+       // CHECK 4 - Payment referencing non-existent invoice(s)
+if (payment > 0 && invNo) {
+    // Extract the letter prefix (e.g. "WH" from "WH 3046") to apply to any
+    // additional slash-separated invoice numbers referenced in the same payment
+    const prefixMatch = invNo.match(/^([A-Z]+)/i)
+    const prefix = prefixMatch ? prefixMatch[1] : ''
+
+    const referencedInvoices = [invNo]
+
+    // Look for additional invoice numbers written like "/3068/3013/3125"
+    const additionalRefs = particulars.match(/\/(\d{3,6})/g)
+    if (additionalRefs && prefix) {
+        additionalRefs.forEach(ref => {
+            const num = ref.replace('/', '')
+            referencedInvoices.push(`${prefix} ${num}`)
+        })
+    }
+
+    referencedInvoices.forEach(ref => {
+        if (!validInvoiceNumbers.includes(ref)) {
+            flags.push({
+                row: rowNum,
+                inv_no: ref,
+                type: 'GHOST PAYMENT',
+                severity: 'CRITICAL',
+                detail: `Payment of $${payment} references invoice ${ref} which does not exist in this statement`
+            })
         }
     })
-
-    return {
-        total_rows_checked: invoices.length,
-        total_flags: flags.length,
-        flags: flags
-    }
 }
 
 async function saveAuditResults(supabaseClient, auditResults, parsedData, fileName, userId) {
