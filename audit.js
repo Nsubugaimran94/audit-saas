@@ -69,6 +69,58 @@ function excelSerialToDate(serial) {
     return date.toISOString().split('T')[0]
 }
 
+function checkBalanceCarryForward(invoices) {
+    const flags = []
+    const yearData = {}
+
+    invoices.forEach(row => {
+        const dateStr = row['DATE'] || ''
+        const yearMatch = dateStr.match(/\/(\d{4})$/)
+        if (!yearMatch) return
+        const year = yearMatch[1]
+
+        if (!yearData[year]) {
+            yearData[year] = { opening: null, totalCharges: 0, totalPayments: 0 }
+        }
+
+        const particulars = (row['PARTICULARS'] || '').toString()
+        const amount = parseFloat(row['AMOUNT']) || 0
+        const payment = parseFloat(row['PAYMENTS']) || 0
+        const isOpening = /opening\s*bal/i.test(particulars)
+
+        if (isOpening) {
+            yearData[year].opening = amount
+        } else {
+            yearData[year].totalCharges += amount
+            yearData[year].totalPayments += payment
+        }
+    })
+
+    const years = Object.keys(yearData).sort()
+
+    for (let i = 0; i < years.length - 1; i++) {
+        const current = yearData[years[i]]
+        const next = yearData[years[i + 1]]
+
+        if (current.opening === null || next.opening === null) continue
+
+        const computedClosing = current.opening + current.totalCharges - current.totalPayments
+        const difference = Math.round((computedClosing - next.opening) * 100) / 100
+
+        if (Math.abs(difference) > 1) {
+            flags.push({
+                row: null,
+                inv_no: null,
+                type: 'BALANCE CARRY-FORWARD MISMATCH',
+                severity: 'CRITICAL',
+                detail: `Computed closing balance for ${years[i]} ($${computedClosing.toFixed(2)}) does not match Opening Balance recorded for ${years[i + 1]} ($${next.opening.toFixed(2)}). Difference: $${difference.toFixed(2)}`
+            })
+        }
+    }
+
+    return flags
+}
+
 // Main audit function
 function auditStatement(invoices) {
     const flags = []
@@ -170,6 +222,9 @@ function auditStatement(invoices) {
             })
         }
     })
+
+    const carryForwardFlags = checkBalanceCarryForward(invoices)
+    flags.push(...carryForwardFlags)
 
     return {
         total_rows_checked: invoices.length,
