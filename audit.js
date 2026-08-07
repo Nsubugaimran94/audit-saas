@@ -101,8 +101,6 @@ function checkBalanceCarryForward(invoices) {
     for (let i = 0; i < years.length - 1; i++) {
         const current = yearData[years[i]]
         const next = yearData[years[i + 1]]
-        console.log(`DEBUG year ${years[i]}:`, JSON.stringify(current))
-console.log(`DEBUG year ${years[i+1]} opening:`, next.opening)
 
         if (current.opening === null || next.opening === null) continue
 
