@@ -193,9 +193,12 @@ function auditStatement(invoices) {
 
        // CHECK 4 - Payment referencing non-existent invoice(s)
         if (payment > 0 && invNo) {
-            // Extract the letter prefix (e.g. "WH" from "WH 3046") to apply to any
-            // additional slash-separated invoice numbers referenced in the same payment
-            const prefixMatch = invNo.match(/^([A-Z]+)/i)
+           if (particulars.includes('3068')) {
+               console.log('DEBUG multi-invoice row:', JSON.stringify({ invNo, particulars, payment }))
+           }
+           // Extract the letter prefix (e.g. "WH" from "WH 3046") to apply to any
+           // additional slash-separated invoice numbers referenced in the same payment
+           const prefixMatch = invNo.match(/^([A-Z]+)/i)
             const prefix = prefixMatch ? prefixMatch[1] : ''
 
             const referencedInvoices = [invNo]
