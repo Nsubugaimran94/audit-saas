@@ -86,7 +86,7 @@ function checkBalanceCarryForward(invoices) {
         const particulars = (row['PARTICULARS'] || '').toString()
         const amount = parseFloat(row['AMOUNT']) || 0
         const payment = parseFloat(row['PAYMENTS']) || 0
-        const isOpening = /opening\s*bal/i.test(particulars)
+        const isOpening = /opp?ening\s*bal/i.test(particulars)
 
         if (isOpening) {
             yearData[year].opening = amount
