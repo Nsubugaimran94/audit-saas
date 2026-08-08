@@ -192,38 +192,53 @@ function auditStatement(invoices) {
         }
 
        // CHECK 4 - Payment referencing non-existent invoice(s)
-        if (payment > 0 && invNo) {
-           if (particulars.includes('3068')) {
-               console.log('DEBUG multi-invoice row:', JSON.stringify({ invNo, particulars, payment }))
+       if (payment > 0) {
+           let referencedInvoices = []
+
+           if (invNo) {
+               referencedInvoices.push(invNo)
+               const prefixMatch = invNo.match(/^([A-Z]+)/i)
+               const prefix = prefixMatch ? prefixMatch[1] : ''
+
+               const additionalRefs = particulars.match(/\/(\d{3,6})/g)
+               if (additionalRefs && prefix) {
+                   additionalRefs.forEach(ref => {
+                       const num = ref.replace('/', '')
+                       referencedInvoices.push(`${prefix} ${num}`)
+                   })
+               }
+           } else {
+               // invNo is empty but particulars may still contain a real invoice sequence
+               // e.g. "TT PAYMENTS AGNST INVOICE WH 3046/3068/3013/3125"
+               const sequenceMatch = particulars.match(/([A-Z]{1,4})\s?(\d{3,6})((?:\/\d{3,6})*)/i)
+               if (sequenceMatch) {
+                   const prefix = sequenceMatch[1].toUpperCase()
+                   const firstNum = sequenceMatch[2]
+                   referencedInvoices.push(`${prefix} ${firstNum}`)
+
+                   const rest = sequenceMatch[3]
+                   const additionalRefs = rest.match(/\/(\d{3,6})/g)
+                   if (additionalRefs) {
+                       additionalRefs.forEach(ref => {
+                           const num = ref.replace('/', '')
+                           referencedInvoices.push(`${prefix} ${num}`)
+                       })
+                   }
+               }
            }
-           // Extract the letter prefix (e.g. "WH" from "WH 3046") to apply to any
-           // additional slash-separated invoice numbers referenced in the same payment
-           const prefixMatch = invNo.match(/^([A-Z]+)/i)
-            const prefix = prefixMatch ? prefixMatch[1] : ''
 
-            const referencedInvoices = [invNo]
-
-            // Look for additional invoice numbers written like "/3068/3013/3125"
-            const additionalRefs = particulars.match(/\/(\d{3,6})/g)
-            if (additionalRefs && prefix) {
-                additionalRefs.forEach(ref => {
-                    const num = ref.replace('/', '')
-                    referencedInvoices.push(`${prefix} ${num}`)
-                })
-            }
-
-            referencedInvoices.forEach(ref => {
-                if (!validInvoiceNumbers.includes(ref)) {
-                    flags.push({
-                        row: rowNum,
-                        inv_no: ref,
-                        type: 'GHOST PAYMENT',
-                        severity: 'CRITICAL',
-                        detail: `Payment of $${payment} references invoice ${ref} which does not exist in this statement`
-                    })
-                }
-            })
-        }
+           referencedInvoices.forEach(ref => {
+               if (!validInvoiceNumbers.includes(ref)) {
+                   flags.push({
+                       row: rowNum,
+                       inv_no: ref,
+                       type: 'GHOST PAYMENT',
+                       severity: 'CRITICAL',
+                       detail: `Payment of $${payment} references invoice ${ref} which does not exist in this statement`
+                   })
+               }
+           })
+       }
     })
 
     const carryForwardFlags = checkBalanceCarryForward(invoices)
