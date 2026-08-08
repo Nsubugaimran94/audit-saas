@@ -227,8 +227,16 @@ function auditStatement(invoices) {
                }
            }
 
+           function extractInvoiceDigits(str) {
+               const match = str.match(/(\d{3,6})/)
+               return match ? match[1] : str
+           }
+
            referencedInvoices.forEach(ref => {
-               if (!validInvoiceNumbers.includes(ref)) {
+               const refDigits = extractInvoiceDigits(ref)
+               const matchFound = validInvoiceNumbers.some(valid => extractInvoiceDigits(valid) === refDigits)
+
+               if (!matchFound) {
                    flags.push({
                        row: rowNum,
                        inv_no: ref,
