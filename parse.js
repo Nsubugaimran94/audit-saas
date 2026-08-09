@@ -88,7 +88,7 @@ async function extractPdfInvoicesWithHeader(file) {
 }
 
 function detectClientSupplier(items) {
-    const skipWords = ['STATEMENT', 'INVOICE', 'TAX INVOICE', 'ACCOUNT', 'RECEIPT', 'PAGE']
+    const skipPhrases = ['STATEMENT OF ACCOUNT', 'TAX INVOICE', 'STATEMENT', 'INVOICE', 'ACCOUNT', 'RECEIPT', 'PAGE']
 
     const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x)
 
@@ -96,8 +96,9 @@ function detectClientSupplier(items) {
     for (const item of sorted) {
         const text = item.text.trim()
         if (text.length < 5) continue
-        if (skipWords.some(w => text.toUpperCase() === w)) continue
-        if (!/[A-Z]{3,}/.test(text.toUpperCase())) continue
+        const upperText = text.toUpperCase()
+        if (skipPhrases.some(phrase => upperText.includes(phrase))) continue
+        if (!/[A-Z]{3,}/.test(upperText)) continue
         supplier = text
         break
     }
