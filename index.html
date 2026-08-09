@@ -293,7 +293,13 @@ if (uncheckedBoxes.length > 0) {
         setProgress(50, '🔍 Auditing...')
         const parsedData = await parseDocument(file)
 
-        
+        if (!parsedData.invoices || parsedData.invoices.length === 0) {
+            document.getElementById('progressBar').classList.remove('show')
+            message.style.color = 'var(--danger)'
+            message.textContent = 'This document does not match the format expected by AuditLog. Please upload a related statement to avoid using a credit unnecessarily.'
+            btn.disabled = false
+            return
+        }
 
         setProgress(80, '🔍 Auditing...')
         const auditResults = auditStatement(parsedData.invoices)
