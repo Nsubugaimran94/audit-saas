@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditLog — Privacy Policy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: #F8FAFC; color: #0B1F3A; line-height: 1.7; }
+        nav { background: #0B1F3A; padding: 0 2rem; height: 60px; display: flex; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-mark { width: 32px; height: 32px; background: #2563EB; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .logo-mark svg { width: 18px; height: 18px; fill: white; }
+        .logo-text { font-size: 16px; font-weight: 600; color: white; }
+        .logo-text span { color: #3B82F6; }
+        main { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .draft-notice {
+            background: #FEF3E2; border: 1px solid #F59E0B; border-radius: 10px;
+            padding: 16px 20px; margin-bottom: 2.5rem; font-size: 13px; color: #92400E;
+        }
+        .draft-notice strong { display: block; margin-bottom: 4px; font-size: 14px; }
+        h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .updated { font-size: 13px; color: #8FA3BB; margin-bottom: 2.5rem; }
+        h2 { font-size: 1.15rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p, li { font-size: 14.5px; color: #4A6080; margin-bottom: 0.9rem; }
+        ul { padding-left: 1.4rem; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13.5px; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #E2E8F0; color: #4A6080; }
+        th { color: #0B1F3A; font-weight: 600; }
+        a { color: #2563EB; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="index.html" class="logo">
+        <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+        <span class="logo-text">Audit<span>Log</span></span>
+    </a>
+</nav>
+<main>
+    <div class="draft-notice">
+        <strong>Draft — Not Yet Legally Reviewed</strong>
+        This is a placeholder version of AuditLog's Privacy Policy, written to establish a working baseline. It has not been reviewed by a qualified lawyer and should not be treated as final until proper legal review is completed, especially given AuditLog processes financial documents and payment information.
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: August 2026 (Draft)</p>
+
+    <h2>1. What We Collect</h2>
+    <p>When you use AuditLog, we collect:</p>
+    <table>
+        <tr><th>Data</th><th>Why</th></tr>
+        <tr><td>Email, company name, password</td><td>To create and secure your account</td></tr>
+        <tr><td>Uploaded statements (PDF/Excel)</td><td>To run the audit you request</td></tr>
+        <tr><td>Extracted line-item data from your statement</td><td>To perform rate, duplicate, and balance checks</td></tr>
+        <tr><td>Audit results and history</td><td>So you can view past audits</td></tr>
+        <tr><td>Payment confirmation data from Pesapal</td><td>To credit your account after payment — we do not receive or store your card or mobile money PIN</td></tr>
+    </table>
+
+    <h2>2. How We Store Your Data</h2>
+    <p>Your account and audit data is stored using Supabase, with access restricted so that only your own account can read your own audit history. Uploaded files are stored in secure cloud storage tied to your account.</p>
+
+    <h2>3. Document Processing</h2>
+    <p>Documents you upload are processed to extract line-item data (dates, amounts, invoice numbers) needed to run the audit. This currently happens using automated pattern-matching on the document's text — your document content is not shared with or reviewed by a third-party AI service unless AuditLog explicitly enables that feature in the future, which would be disclosed separately.</p>
+
+    <h2>4. Who Can See Your Data</h2>
+    <ul>
+        <li>You — your own account, your own audits, your own history.</li>
+        <li>Automind Systems staff, only where necessary to provide support or fix a technical issue.</li>
+        <li>Service providers we rely on to operate AuditLog (Supabase for data storage, Pesapal for payment processing, Vercel for hosting) — each only receives what's necessary for their function.</li>
+    </ul>
+    <p>We do not sell your data, and we do not share your statement contents with other clients or third parties for marketing purposes.</p>
+
+    <h2>5. Payment Information</h2>
+    <p>Payments are handled directly by Pesapal, a licensed payment processor regulated by the Bank of Uganda. AuditLog never receives or stores your full card number, mobile money PIN, or banking credentials.</p>
+
+    <h2>6. Data Retention and Deletion</h2>
+    <p>You can delete individual audit records at any time from your History page. If you wish to close your account entirely and have your data removed, contact us and we will process that request.</p>
+
+    <h2>7. Security</h2>
+    <p>We use industry-standard practices including encrypted connections (HTTPS), access-restricted database policies, and server-side handling of sensitive operations like credit and payment updates. No system is 100% secure, and we encourage you to use a strong, unique password for your account.</p>
+
+    <h2>8. Your Rights</h2>
+    <p>You can request a copy of the data we hold about you, request corrections, or request deletion, subject to any legal or accounting record-keeping requirements that may apply.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this policy as AuditLog develops. Material changes will be reflected here with an updated date.</p>
+
+    <h2>10. Contact</h2>
+    <p>Questions about this policy or your data can be sent to the contact details provided on our website or within the app.</p>
+</main>
+</body>
+</html>
