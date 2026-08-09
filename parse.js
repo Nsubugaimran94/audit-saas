@@ -1,19 +1,15 @@
 async function parseDocument(file) {
     const isPdf = file.name.toLowerCase().endsWith('.pdf')
-
+    
     if (isPdf) {
-        const { invoices, headerText } = await extractPdfInvoicesWithHeader(file)
+        const { invoices, headerText, page1Items } = await extractPdfInvoicesWithHeader(file)
 
-        let client = 'Unknown Client'
-        let supplier = 'Unknown Supplier'
-
-        if (headerText.includes('NAK')) client = 'NAK Shipping & Logistics Ltd'
-        if (headerText.includes('WHITE HORSE')) supplier = 'White Horse Carriers Ltd'
+        const { supplier, client } = detectClientSupplier(page1Items)
 
         return {
             invoices: invoices,
-            client: client,
-            supplier: supplier,
+            client: client || 'Unknown Client',
+            supplier: supplier || 'Unknown Supplier',
             statement_period: new Date().getFullYear().toString()
         }
     }
@@ -65,6 +61,7 @@ async function extractPdfInvoicesWithHeader(file) {
     let allRows = []
     let headerText = ''
     let columnRanges = null
+    let page1Items = []
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
@@ -80,13 +77,48 @@ async function extractPdfInvoicesWithHeader(file) {
             headerText = items.map(item => item.text).join(' ').toUpperCase()
             const detected = detectColumnPositions(items)
             columnRanges = buildColumnRanges(detected)
+            page1Items = items
         }
 
         const pageRows = extractNakTable(items, columnRanges)
         allRows = allRows.concat(pageRows)
     }
 
-    return { invoices: allRows, headerText: headerText }
+    return { invoices: allRows, headerText: headerText, page1Items: page1Items }
+}
+
+function detectClientSupplier(items) {
+    const skipWords = ['STATEMENT', 'INVOICE', 'TAX INVOICE', 'ACCOUNT', 'RECEIPT', 'PAGE']
+
+    const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x)
+
+    let supplier = null
+    for (const item of sorted) {
+        const text = item.text.trim()
+        if (text.length < 5) continue
+        if (skipWords.some(w => text.toUpperCase() === w)) continue
+        if (!/[A-Z]{3,}/.test(text.toUpperCase())) continue
+        supplier = text
+        break
+    }
+
+    const markerIndex = sorted.findIndex(item => /INVOICE TO|BILLED TO|SOLD TO|BILL TO/i.test(item.text))
+
+    let client = null
+    if (markerIndex !== -1) {
+        const markerY = sorted[markerIndex].y
+        for (let i = markerIndex + 1; i < sorted.length; i++) {
+            const item = sorted[i]
+            if (item.y >= markerY) continue
+            const text = item.text.trim()
+            if (text.length < 5) continue
+            if (/^P\.?O\.?\s*BOX|^PLOT|^\d/i.test(text)) continue
+            client = text
+            break
+        }
+    }
+
+    return { supplier, client }
 }
 
 function detectColumnPositions(items) {
