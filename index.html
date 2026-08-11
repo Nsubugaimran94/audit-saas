@@ -139,29 +139,32 @@
 <script src="parse.js"></script>
 <script src="audit.js"></script>
 <script>
-    window.supabaseClient = window.supabaseClient || window.supabase.createClient(
-    'https://wqrimnvcfduqsdnpcitk.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
-)
+    if (typeof window.supabase === 'undefined') {
+        document.body.innerHTML = '<div style="padding:3rem; text-align:center; font-family:sans-serif; color:#0B1F3A;"><h2>Connection issue</h2><p>AuditLog failed to load a required resource. Please check your internet connection and refresh the page.</p></div>'
+    } else {
+        window.supabaseClient = window.supabaseClient || window.supabase.createClient(
+            'https://wqrimnvcfduqsdnpcitk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcmltbnZjZmR1cXNkbnBjaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODkyOTQsImV4cCI6MjA5NjE2NTI5NH0.wDTJffnCY9GyjkIOAlQIGt85zOyr8me_NIHeKB6raao'
+        )
 
-    const redirectToLogin = () => {
-        window.location.replace('login.html')
+        const redirectToLogin = () => {
+            window.location.replace('login.html')
+        }
+
+        ;(async () => {
+            const { data: { session } } = await window.supabaseClient.auth.getSession()
+            if (!session) {
+                redirectToLogin()
+                return
+            }
+        })()
+
+        window.supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (!session) {
+                redirectToLogin()
+            }
+        })
     }
-
-    ;(async () => {
-        const { data: { session } } = await window.supabaseClient.auth.getSession()
-        if (!session) {
-            redirectToLogin()
-            return
-        }
-
-    })()
-
-    window.supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (!session) {
-            redirectToLogin()
-        }
-    })
 
     const fileInput = document.getElementById('fileInput')
     const dropZone = document.getElementById('dropZone')
