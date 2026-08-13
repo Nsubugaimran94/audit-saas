@@ -27,108 +27,6 @@ body {
     min-height: 100vh;
 }
 
-/* INSTALL BANNER */
-.install-banner {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--navy);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding: 16px 20px;
-    z-index: 50;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    box-shadow: 0 -2px 12px rgba(11,31,58,0.15);
-    animation: slideUp 0.3s ease;
-}
-
-.install-banner.show {
-    display: flex;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.install-banner-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-}
-
-.install-icon {
-    font-size: 24px;
-}
-
-.install-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: white;
-    letter-spacing: -0.2px;
-}
-
-.install-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 2px;
-}
-
-.install-banner-right {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.install-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: -0.2px;
-}
-
-.install-btn:hover {
-    background: var(--accent-light);
-}
-
-.dismiss-btn {
-    background: rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.8);
-    border: none;
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dismiss-btn:hover {
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
-
 /* NAV */
 nav {
     background: var(--navy);
@@ -211,6 +109,7 @@ nav {
     left: 50%;
     transform: translateX(-50%);
     width: 600px;
+    max-width: 100vw;
     height: 300px;
     background: radial-gradient(ellipse, rgba(37,99,235,0.15) 0%, transparent 70%);
     pointer-events: none;
