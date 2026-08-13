@@ -790,6 +790,7 @@ main {
     color: var(--text-primary);
     font-family: 'DM Mono', monospace;
     max-width: 60vw;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
