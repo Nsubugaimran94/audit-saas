@@ -760,7 +760,7 @@ main {
     font-weight: 500;
     color: var(--text-primary);
     font-family: 'DM Mono', monospace;
-    max-width: 400px;
+    max-width: 60vw;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -782,6 +782,7 @@ main {
     gap: 16px;
     font-size: 12px;
     color: var(--text-muted);
+    flex-wrap: wrap;
 }
 
 .audit-meta-item {
