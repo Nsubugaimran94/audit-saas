@@ -316,7 +316,7 @@ if (uncheckedBoxes.length > 0) {
         displayResults(auditResults, parsedData)
 
         try {
-            await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId)
+        await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId, fileName)
 
             if (access.reason === 'free_trial') {
                 await fetch('/api/mark-trial-used', {

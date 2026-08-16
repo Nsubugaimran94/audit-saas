@@ -206,6 +206,16 @@ async function deleteAudit(auditId, event) {
         return
     }
 
+    const { data: auditRecord } = await supabaseClient
+        .from('audit_results')
+        .select('storage_path')
+        .eq('id', auditId)
+        .single()
+
+    if (auditRecord?.storage_path) {
+        await supabaseClient.storage.from('audit-uploads').remove([auditRecord.storage_path])
+    }
+
     const { error } = await supabaseClient
         .from('audit_results')
         .delete()
