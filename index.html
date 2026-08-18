@@ -316,7 +316,26 @@ if (uncheckedBoxes.length > 0) {
         displayResults(auditResults, parsedData)
 
         try {
-        await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId, fileName)
+            await saveAuditResults(window.supabaseClient, auditResults, parsedData, file.name, access.userId, fileName)
+
+            const { data: { user } } = await window.supabaseClient.auth.getUser()
+            const criticalCount = auditResults.flags.filter(f => f.severity === 'CRITICAL').length
+            const highCount = auditResults.flags.filter(f => f.severity === 'HIGH').length
+
+            fetch('/api/send-audit-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    companyName: user.user_metadata?.company_name,
+                    client: parsedData.client,
+                    supplier: parsedData.supplier,
+                    totalFlags: auditResults.total_flags,
+                    criticalCount,
+                    highCount,
+                    fileName: file.name
+                })
+            }).catch(err => console.error('Email send failed:', err))
 
             if (access.reason === 'free_trial') {
                 await fetch('/api/mark-trial-used', {
