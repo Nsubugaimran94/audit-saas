@@ -5,6 +5,13 @@
   src="https://js-de.sentry-cdn.com/c79c434c8fac643d1cc55406232ab180.min.js"
   crossorigin="anonymous"
 ></script>
+    <script>
+      Sentry.onLoad(function() {
+        Sentry.init({
+          ignoreErrors: ["Script error."],
+        });
+      });
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
